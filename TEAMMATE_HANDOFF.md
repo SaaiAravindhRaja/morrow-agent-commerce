@@ -2,7 +2,7 @@
 
 ## Links
 
-- Public demo: https://morrow-agent-commerce-29bigbxx5-saaiaravindhrajas-projects.vercel.app
+- Public demo: https://morrow-agent-commerce.vercel.app
 - Private repository: https://github.com/SaaiAravindhRaja/morrow-agent-commerce
 - One-page brief: [`output/pdf/morrow-track3-idea-brief.pdf`](output/pdf/morrow-track3-idea-brief.pdf)
 

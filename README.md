@@ -2,7 +2,7 @@
 
 Morrow is a merchant-side commerce primitive for scarce inventory. A merchant exposes a time-boxed, non-refundable commitment that an agent can discover and acquire using x402 payment terms. If exercised on time, the commitment is fully credited to the purchase.
 
-Public demo: https://morrow-agent-commerce-29bigbxx5-saaiaravindhrajas-projects.vercel.app
+Public demo: https://morrow-agent-commerce.vercel.app
 
 For the idea, demo script, setup, and claim boundaries, start with [TEAMMATE_HANDOFF.md](TEAMMATE_HANDOFF.md).
 
