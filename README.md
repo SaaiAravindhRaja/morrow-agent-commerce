@@ -7,7 +7,7 @@
 | App | https://morrow-agent-commerce.vercel.app/ |
 | Architecture | https://morrow-agent-commerce.vercel.app/architecture |
 
-![Morrow merchant commitments](docs/readme-hero.png)
+![Morrow merchant commitments](docs/readme-hero.gif)
 
 Morrow is a merchant-side commerce primitive for scarce inventory. A merchant exposes a time-boxed, non-refundable commitment deposit that an agent can discover and acquire using x402 `exact` payment terms, authorized with Permit2. If exercised on time, the commitment is fully credited to the purchase.
 
