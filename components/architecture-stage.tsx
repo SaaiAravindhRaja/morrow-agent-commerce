@@ -7,6 +7,7 @@ import {
   ARCHITECTURE_AWS,
   ARCHITECTURE_COLOR_VARS,
   ARCHITECTURE_NODES,
+  ARCHITECTURE_RESEARCH,
   bakeSvgColors,
   findArchitectureNode,
   svgHasExternalNetwork,
@@ -378,6 +379,23 @@ export function ArchitectureStage() {
       </ol>
 
       <DetailPanel node={selected} />
+
+      <section className="arch-aws" aria-labelledby="research-title">
+        <h2 id="research-title">What we actually verified on Avalanche</h2>
+        <p className="arch-aws-note">
+          This is the x402 research. It is why we ship exact + Permit2. None of
+          it is a guess.
+        </p>
+        <div className="arch-aws-grid">
+          {ARCHITECTURE_RESEARCH.map((item) => (
+            <article key={item.id}>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+              <p className="arch-repro">{item.reproduce}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="arch-aws" aria-labelledby="aws-title">
         <h2 id="aws-title">What the AWS judge is looking at</h2>

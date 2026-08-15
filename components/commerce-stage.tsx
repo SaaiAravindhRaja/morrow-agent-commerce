@@ -124,9 +124,7 @@ export function CommerceStage() {
           </div>
           <div className="proof-mode-copy">
             <p>{modeCopy(proof, fetching)}</p>
-            {proof?.liveError ? (
-              <p className="proof-mode-error">Live path failed: {proof.liveError}</p>
-            ) : null}
+            {proof?.viewerNote ? <p className="proof-mode-error">{proof.viewerNote}</p> : null}
           </div>
         </div>
 

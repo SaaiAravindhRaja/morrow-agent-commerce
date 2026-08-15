@@ -1,11 +1,9 @@
 import { decodePaymentSignatureHeader } from "@x402/core/http";
 
 import { COMMITMENT_PRICE_ATOMIC, buildPaymentRequired, isEvmAddress } from "@/lib/commerce";
+import { DEMO_SKU, claimInventory, releaseInventory } from "@/lib/inventory";
 import { isLiveRailConfigured } from "@/lib/rail/clients";
 import { settleAuthorization, verifyAuthorization } from "@/lib/rail/settlement";
-
-const SKU = "commitment-fri-2000";
-let slotWinner: string | undefined;
 
 function resourceUrl(request: Request) {
   return new URL("/api/commit", request.url).toString();
@@ -109,11 +107,12 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
     }
 
     const payer = verified.payer ?? "";
-    if (slotWinner && slotWinner !== payer) {
+    const claim = claimInventory(payer, DEMO_SKU);
+    if (claim === "lost") {
       return jsonWithoutSignature(
         {
           code: "SLOT_UNAVAILABLE",
-          sku: SKU,
+          sku: DEMO_SKU,
           message: "Inventory already granted. Authorization was not settled.",
           proofMode: "live-fork",
         },
@@ -122,11 +121,11 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
       );
     }
 
-    if (slotWinner === payer) {
+    if (claim === "held") {
       return jsonWithoutSignature(
         {
           code: "ALREADY_SETTLED",
-          sku: SKU,
+          sku: DEMO_SKU,
           message: "This payer already holds the slot. Replay was not settled again.",
           proofMode: "live-fork",
         },
@@ -135,10 +134,9 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
       );
     }
 
-    slotWinner = payer;
     const settled = await settleAuthorization(payload, { requirements });
     if (!settled.success) {
-      slotWinner = undefined;
+      releaseInventory(DEMO_SKU);
       return jsonWithoutSignature(
         {
           code: "SETTLEMENT_FAILED",
@@ -153,7 +151,7 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
     return jsonWithoutSignature(
       {
         code: "COMMITMENT_HELD",
-        sku: SKU,
+        sku: DEMO_SKU,
         proofMode: "live-fork",
         transaction: settled.transaction,
         payer: settled.payer,

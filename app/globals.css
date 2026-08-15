@@ -1431,6 +1431,15 @@ a {
   line-height: 1.45;
 }
 
+.arch-repro {
+  margin-top: 10px !important;
+  font-family: var(--mono);
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+  color: var(--arch-muted);
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 900px) {
   .arch-title-row,
   .arch-story,

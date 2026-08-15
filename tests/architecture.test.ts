@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURE_AWS,
   ARCHITECTURE_NODES,
+  ARCHITECTURE_RESEARCH,
   bakeSvgColors,
   findArchitectureNode,
   svgHasExternalNetwork,
@@ -28,6 +29,19 @@ describe("architecture catalog", () => {
     expect(inventory?.today).toMatch(/in-process lock/i);
     expect(inventory?.today).toMatch(/DynamoDB is not running/);
     expect(ARCHITECTURE_AWS.some((item) => /production mapping/i.test(item.body))).toBe(true);
+  });
+
+  it("does not call the public commit endpoint LIVE while production is 503", () => {
+    const merchant = findArchitectureNode("merchant");
+    expect(merchant?.status).not.toBe("LIVE");
+    expect(merchant?.today).toMatch(/503/);
+  });
+
+  it("surfaces the three protocol findings a judge should see", () => {
+    const titles = ARCHITECTURE_RESEARCH.map((item) => item.title).join(" ");
+    expect(titles).toMatch(/Correction 7/);
+    expect(titles).toMatch(/Correction 12/);
+    expect(titles).toMatch(/Correction 14/);
   });
 
   it("does not put network URLs in node copy", () => {

@@ -23,8 +23,8 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     title: "Merchant API on Vercel",
     does: "Publishes policy and the 402. Front-end is this Next.js app.",
     protocol: "GET /api/capabilities. GET /api/commit returns HTTP 402.",
-    today: "Deployed on Vercel. Payment terms are exact + Permit2 for 0.20 XSGD.",
-    status: "LIVE",
+    today: "Front-end is on Vercel. GET /api/commit is 503 on the public URL until MERCHANT_WALLET_ADDRESS is set there. Locally it returns 402.",
+    status: "DEMO",
   },
   {
     id: "terms",
@@ -79,7 +79,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     title: "One-time Permit2 approve",
     does: "Payer approves Permit2 once, on-chain, and pays gas that once.",
     protocol: "XSGD.approve(Permit2, max). Later payments are signatures.",
-    today: "Rehearsed on the fork. Dewa has not sent the real mainnet approve yet.",
+    today: "Sent on Avalanche mainnet. Tx 0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452. Allowance is max.",
     status: "LIVE",
   },
   {
@@ -118,6 +118,27 @@ export const ARCHITECTURE_AWS = [
     body: "RaceConflicts, PaymentVerifyLatency, PaymentSettleLatency. Structured logs carry inventoryId, agentId, idempotencyKey, outcome. Production mapping.",
   },
 ];
+
+export const ARCHITECTURE_RESEARCH = [
+  {
+    id: "upto",
+    title: "Correction 7. Stock upto cannot run on Avalanche",
+    body: "@x402/evm@2.22.0 hardcodes the upto proxy at 0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002. That address has zero bytecode on Avalanche C-Chain. A real upto proxy sits at 0x402015c795ecb48A360bDC6e35a2EaEb313a0002 and matches the SDK witness typehash, but the facilitator rejects any other spender. exact works because the SDK exact proxy matches what is deployed.",
+    reproduce: "cd rail/fork && ./start.sh && ./rehearse.sh   # section 2 asserts SDK upto code size is 0, and fails if that ever changes",
+  },
+  {
+    id: "eip3009-exists",
+    title: "Correction 12. Mainnet XSGD does support EIP-3009",
+    body: "TRANSFER_WITH_AUTHORIZATION_TYPEHASH and RECEIVE_WITH_AUTHORIZATION_TYPEHASH return the canonical constants. authorizationState resolves. DOMAIN_SEPARATOR() and version() still revert. Saying XSGD has no EIP-3009 is false. Morrow still ships Permit2. That is a product choice, not a token limitation.",
+    reproduce: "cast call 0xb2F85b7AB3c2b6f62DF06dE6aE7D09c010a5096E \"TRANSFER_WITH_AUTHORIZATION_TYPEHASH()(bytes32)\" --rpc-url https://api.avax.network/ext/bc/C/rpc",
+  },
+  {
+    id: "domain",
+    title: "Correction 14. Domain version is 2, recovered then reproduced",
+    body: "Live 0xGasless tx 0xe352cde5b79d5035848bf7fda7860e8798802c961944470fbf2e61f8b65a630c recovers only against name XSGD, version 2, chainId 43114, verifyingContract the XSGD proxy. A fresh anvil signature then settled 0.20 XSGD on the fork. Stock @x402/evm exact + eip3009 verified and settled. Shipping rail stays Permit2.",
+    reproduce: "cast tx 0xe352cde5b79d5035848bf7fda7860e8798802c961944470fbf2e61f8b65a630c --rpc-url https://api.avax.network/ext/bc/C/rpc",
+  },
+] as const;
 
 export const ARCHITECTURE_ADDRESSES = {
   exactProxy: "0x402085c248EeA27D92E8b30b2C58ed07f9E20001",

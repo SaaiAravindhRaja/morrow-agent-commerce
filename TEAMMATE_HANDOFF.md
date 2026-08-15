@@ -3,10 +3,10 @@
 ## Links
 
 - Public demo: https://morrow-agent-commerce.vercel.app
-- Private repository: https://github.com/SaaiAravindhRaja/morrow-agent-commerce
+- Repository: https://github.com/SaaiAravindhRaja/morrow-agent-commerce
 - One-page brief: [`output/pdf/morrow-track3-idea-brief.pdf`](output/pdf/morrow-track3-idea-brief.pdf)
 
-The GitHub repository is private. Saai must invite your GitHub username before the repository link will open.
+The repository is public (verified 15 Aug). No invite is needed to open it, and it is safe to submit as the GitHub URL.
 
 ## The idea
 

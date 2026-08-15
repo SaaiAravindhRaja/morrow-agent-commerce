@@ -58,11 +58,24 @@ export type DemoContender = {
   };
 };
 
+export const MAINNET_APPROVE_TX =
+  "0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452" as const;
+
 export function proofModeDisclaimer(mode: ProofMode): string {
   if (mode === "LIVE_FORK") {
     return "This run settled against the local Avalanche mainnet fork. No real mainnet transaction was broadcast.";
   }
   return "This run used the deterministic simulation. No payment was broadcast. Mainnet contract values are real.";
+}
+
+export function containsLoopback(value: string): boolean {
+  return /127\.0\.0\.1|localhost/i.test(value);
+}
+
+export function viewerFacingNote(mode: ProofMode, liveError?: string): string | undefined {
+  if (mode !== "DETERMINISTIC_DEMO") return undefined;
+  if (!liveError) return undefined;
+  return `Deterministic walkthrough. This hosted run cannot use a local fork. The one Avalanche mainnet write from this project is the Permit2 approve ${MAINNET_APPROVE_TX}.`;
 }
 
 export type DemoProofResponse = {
@@ -71,6 +84,7 @@ export type DemoProofResponse = {
   invariant: string;
   liveAttempted: boolean;
   liveError?: string;
+  viewerNote?: string;
   contenders: Array<
     Omit<DemoContender, "chargedAtomic"> & {
       chargedAtomic: string;
@@ -89,6 +103,7 @@ export function serializeDemoProof(
     invariant: "exactly one settlement; losing authorization discarded before settlement",
     liveAttempted: extras?.liveAttempted ?? false,
     liveError: extras?.liveError,
+    viewerNote: viewerFacingNote(mode, extras?.liveError),
     contenders: contenders.map((contender) => ({
       ...contender,
       chargedAtomic: contender.chargedAtomic.toString(),

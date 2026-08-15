@@ -54,4 +54,11 @@ Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/comm
 - `/api/demo`
 - `/architecture`
 
+Buyer agent (needs `DEEPSEEK_API_KEY`, local server, and the fork):
+
+```bash
+corepack pnpm exec tsx agents/atlas.ts --budget=1.00
+corepack pnpm exec tsx agents/atlas.ts --budget=0.05
+```
+
 The authoritative payment and claim decisions are documented in [docs/decisions/mainnet-mvp.md](docs/decisions/mainnet-mvp.md).

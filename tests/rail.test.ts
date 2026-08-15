@@ -187,6 +187,18 @@ describe("runProof fallback", () => {
     });
   });
 
+  it("settles whoever arrives first, not a hardcoded Atlas", async () => {
+    const novaFirst = await runProof({ arrival: ["nova", "atlas"] });
+    const atlasFirst = await runProof({ arrival: ["atlas", "nova"] });
+
+    expect(novaFirst.proofMode).toBe("LIVE_FORK");
+    expect(atlasFirst.proofMode).toBe("LIVE_FORK");
+    expect(novaFirst.contenders.find((contender) => contender.settled)?.id).toBe("agent-b");
+    expect(atlasFirst.contenders.find((contender) => contender.settled)?.id).toBe("agent-a");
+    expect(novaFirst.contenders.filter((contender) => contender.settled)).toHaveLength(1);
+    expect(atlasFirst.contenders.filter((contender) => contender.settled)).toHaveLength(1);
+  });
+
   it("returns DETERMINISTIC_DEMO and never throws when RPC is a dead port", async () => {
     const result = await runProof({ rpcUrl: "http://127.0.0.1:1" });
 

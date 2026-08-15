@@ -9,7 +9,10 @@ import {
   contenderStatus,
   formatXsgd,
   isEvmAddress,
+  MAINNET_APPROVE_TX,
+  containsLoopback,
   proofModeDisclaimer,
+  viewerFacingNote,
 } from "@/lib/commerce";
 
 describe("XSGD payment contract", () => {
@@ -43,6 +46,14 @@ describe("XSGD payment contract", () => {
   it("describes the two proof modes in plain words", () => {
     expect(proofModeDisclaimer("LIVE_FORK")).toContain("local Avalanche mainnet fork");
     expect(proofModeDisclaimer("DETERMINISTIC_DEMO")).toContain("deterministic simulation");
+  });
+
+  it("never puts loopback hosts in the viewer-facing fallback note", () => {
+    const note = viewerFacingNote("DETERMINISTIC_DEMO", "fork RPC unreachable at http://127.0.0.1:8545");
+    expect(note).toBeDefined();
+    expect(containsLoopback(note ?? "")).toBe(false);
+    expect(note).toContain(MAINNET_APPROVE_TX);
+    expect(containsLoopback(proofModeDisclaimer("DETERMINISTIC_DEMO"))).toBe(false);
   });
 
   it("rejects the zero address as a merchant recipient", () => {
