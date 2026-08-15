@@ -51,6 +51,14 @@ describe("architecture catalog", () => {
     expect(titles).toMatch(/Correction 14/);
   });
 
+  it("describes the proof panel in the words the UI actually shows", () => {
+    const fallback = findArchitectureNode("fallback");
+    expect(fallback?.protocol).not.toMatch(/UI labels LIVE_FORK/);
+    expect(fallback?.today).not.toMatch(/mode chip/i);
+    expect(`${fallback?.protocol} ${fallback?.today}`).toMatch(/mainnet fork/i);
+    expect(`${fallback?.protocol} ${fallback?.today}`).toMatch(/simulat/i);
+  });
+
   it("does not put network URLs in node copy", () => {
     const blob = ARCHITECTURE_NODES.map((node) => `${node.does} ${node.protocol} ${node.today}`).join(" ");
     expect(svgHasExternalNetwork(blob)).toBe(false);

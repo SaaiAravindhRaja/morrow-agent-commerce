@@ -18,7 +18,7 @@ The current demo uses a restaurant slot because it makes contention easy to unde
 - a zero-charge loser, because their authorization is never settled
 - Anvil mainnet fork rehearsal (`rail/fork/`): real XSGD bytecode, Permit2 approve, `exact` proxy deployed
 
-The public Vercel site runs the deterministic simulation. The demo tries the live fork first and falls back; the UI labels which mode ran. This preview does not broadcast a real mainnet payment.
+The public Vercel site runs the deterministic simulation. The demo tries the live fork first and falls back. The proof panel says settled on a mainnet fork or simulated walkthrough, never the same sentence for both. This preview does not broadcast a real mainnet payment.
 
 One real Avalanche mainnet transaction exists: the one-time Permit2 approve, [`0xd29b48e9…dc6452`](https://snowtrace.io/tx/0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452), block 92847340. It grants Permit2 an allowance. **It moves no XSGD and it is not a settlement.** No XSGD has moved on mainnet. Do not claim an AWS deployment or a mainnet settlement.
 

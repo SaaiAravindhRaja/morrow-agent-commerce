@@ -92,8 +92,8 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     id: "fallback",
     title: "Judging-day fallback",
     does: "If fork RPC or the facilitator is down, the deterministic demo still runs.",
-    protocol: "GET /api/demo tries live first. UI labels LIVE_FORK or DETERMINISTIC_DEMO.",
-    today: "The mode chip is the source of truth. A viewer must not mistake simulation for a live run.",
+    protocol: "GET /api/demo tries live first. The proof panel names the path that ran.",
+    today: "A fork run reads as settled on a mainnet fork. A fallback run reads as a simulated walkthrough. Those two sentences never match.",
     evidence: ["DEPLOYED", "SIMULATED"],
   },
   {

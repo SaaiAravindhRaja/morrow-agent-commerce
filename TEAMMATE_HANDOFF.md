@@ -67,8 +67,8 @@ Real and verified in the build:
 Now in the app:
 
 - `/api/demo` tries the Anvil fork first and falls back to the deterministic simulation
-- the UI labels `LIVE FORK` or `DETERMINISTIC DEMO` in plain words
-- protocol bar says `Permit2`, not EIP-3009
+- the proof panel says settled on a mainnet fork or simulated walkthrough, never the same sentence for both
+- capability copy and `/architecture` say Permit2, not EIP-3009
 - fork tests cover verify both, settle winner only, reject replay, reject expired
 - `/` is the URL to submit and run for judges
 - `/architecture` is the supporting technical evidence route. File copy still at `docs/architecture/morrow-architecture.html`

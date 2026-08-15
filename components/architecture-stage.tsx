@@ -317,7 +317,7 @@ export function ArchitectureStage() {
             selected={selectedId === "fallback"}
             status={evidenceOf("fallback")}
             kicker="JUDGING FALLBACK"
-            lines={["Fork down: UI says DETERMINISTIC_DEMO"]}
+            lines={["Fork down: panel says simulated walkthrough"]}
           />
 
           <NodeBox
