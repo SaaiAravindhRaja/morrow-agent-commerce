@@ -70,6 +70,34 @@ describe("x402 commitment route", () => {
     });
   });
 
+  it("compiles each active merchant policy into matching payment terms", async () => {
+    process.env.MERCHANT_WALLET_ADDRESS = MERCHANT_WALLET;
+
+    const response = getCommitment(
+      new Request("https://morrow.example/api/commit?policy=policy-clinic-1130"),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(402);
+    expect(body.resource.url).toBe(
+      "https://morrow.example/api/commit?policy=policy-clinic-1130",
+    );
+    expect(body.resource.description).toContain("General consultation");
+    expect(body.accepts[0].amount).toBe("500000");
+  });
+
+  it("rejects unknown or inactive policy ids", async () => {
+    process.env.MERCHANT_WALLET_ADDRESS = MERCHANT_WALLET;
+
+    const response = getCommitment(
+      new Request("https://morrow.example/api/commit?policy=policy-missing"),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(body.code).toBe("COMMITMENT_POLICY_NOT_FOUND");
+  });
+
   it("rejects payment signatures without accepting or echoing them", async () => {
     process.env.MERCHANT_WALLET_ADDRESS = MERCHANT_WALLET;
     const signature = "sensitive-payment-authorization";

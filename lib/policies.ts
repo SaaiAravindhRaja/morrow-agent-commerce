@@ -198,7 +198,7 @@ export function compilePolicy(policy: CommitmentPolicy) {
       authorization: "Permit2",
     },
     endpoints: {
-      commit: "/api/commit",
+      commit: `/api/commit?policy=${encodeURIComponent(policy.id)}`,
       exercise: "/api/exercise",
       proof: "/api/demo",
     },

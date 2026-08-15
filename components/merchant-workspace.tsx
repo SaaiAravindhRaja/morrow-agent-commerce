@@ -172,7 +172,7 @@ export function MerchantWorkspace() {
     setSelectedId(next.id);
     setDetailTab("overview");
     setView("detail");
-    setNotice(editingId ? "Commitment updated" : "Commitment published");
+    setNotice(editingId ? "Commitment updated" : "Published for this demo session");
   }
 
   function togglePolicy(policy: CommitmentPolicy) {
