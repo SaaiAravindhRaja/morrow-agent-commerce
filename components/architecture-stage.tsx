@@ -32,7 +32,7 @@ function evidenceOf(id: string): ArchitectureEvidence {
 export function ArchitectureStage() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [scheme, setScheme] = useState<Scheme>("dark");
+  const [scheme, setScheme] = useState<Scheme>("light");
   const [downloadStatus, setDownloadStatus] = useState<string | null>(null);
   const titleId = useId();
 

@@ -15,6 +15,7 @@ export function GET() {
     paymentTermsConfigured: isEvmAddress(merchantWallet),
     liveSettlementEnabled: isLiveRailConfigured(),
     endpoints: {
+      policies: "/api/policies",
       commitment: "/api/commit",
       exercise: "/api/exercise",
       demoProof: "/api/demo",
