@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useId, useRef, useState } from "react";
 
 import {
   ARCHITECTURE_ADDRESSES,
@@ -13,52 +13,41 @@ import {
   svgHasExternalNetwork,
   wrapStandaloneSvg,
   type ArchitectureNode,
-  type ArchitectureStatus,
+  type ArchitectureEvidence,
 } from "@/lib/architecture";
 
 type Scheme = "dark" | "light";
 
-const STATUS_LABEL: Record<ArchitectureStatus, string> = {
-  LIVE: "LIVE TODAY",
-  DEMO: "DEMO",
-  MAPPING: "PRODUCTION MAPPING",
-  OUT: "NOT IN LIVE PATH",
+const EVIDENCE_LABEL: Record<ArchitectureEvidence, string> = {
+  DEPLOYED: "DEPLOYED",
+  FORK_PROVEN: "FORK-PROVEN",
+  SIMULATED: "SIMULATED",
+  NOT_USED: "NOT USED",
 };
 
-function statusOf(id: string): ArchitectureStatus {
-  return findArchitectureNode(id)?.status ?? "LIVE";
+function evidenceOf(id: string): ArchitectureEvidence {
+  return findArchitectureNode(id)?.evidence[0] ?? "NOT_USED";
 }
 
 export function ArchitectureStage() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [scheme, setScheme] = useState<Scheme>("dark");
-  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [downloadStatus, setDownloadStatus] = useState<string | null>(null);
   const titleId = useId();
 
   const selected = selectedId ? findArchitectureNode(selectedId) : undefined;
 
-  const story = useMemo(
-    () =>
-      ARCHITECTURE_NODES.filter((node) => node.id !== "out" && node.id !== "approve"),
-    [],
-  );
+  const story = ARCHITECTURE_NODES;
 
   function select(id: string) {
     setSelectedId((current) => (current === id ? null : id));
   }
 
-  function onNodeKey(event: KeyboardEvent<SVGGElement>, id: string) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      select(id);
-    }
-  }
-
   function downloadSvg() {
     const svg = svgRef.current;
     if (!svg) {
-      setDownloadError("The diagram was not ready.");
+      setDownloadStatus("The diagram was not ready. Please try again.");
       return;
     }
 
@@ -76,7 +65,7 @@ export function ArchitectureStage() {
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     const baked = bakeSvgColors(clone.outerHTML, colors);
     if (svgHasExternalNetwork(baked)) {
-      setDownloadError("Refusing to export: the SVG contained a network URL.");
+      setDownloadStatus("Export stopped because the diagram was not fully offline-safe.");
       return;
     }
 
@@ -87,7 +76,7 @@ export function ArchitectureStage() {
     link.download = "morrow-architecture.svg";
     link.click();
     URL.revokeObjectURL(href);
-    setDownloadError(null);
+    setDownloadStatus("Architecture SVG downloaded.");
   }
 
   return (
@@ -101,6 +90,7 @@ export function ArchitectureStage() {
               <button
                 type="button"
                 className={scheme === "dark" ? "is-on" : ""}
+                aria-pressed={scheme === "dark"}
                 onClick={() => setScheme("dark")}
               >
                 Dark
@@ -108,6 +98,7 @@ export function ArchitectureStage() {
               <button
                 type="button"
                 className={scheme === "light" ? "is-on" : ""}
+                aria-pressed={scheme === "light"}
                 onClick={() => setScheme("light")}
               >
                 Light
@@ -126,7 +117,7 @@ export function ArchitectureStage() {
           Settlement is proven on a local Anvil mainnet fork. AWS is not running.
           No real mainnet settlement has been sent.
         </p>
-        {downloadError ? <p className="arch-error">{downloadError}</p> : null}
+        <p className="arch-error" aria-live="polite">{downloadStatus}</p>
       </header>
 
       <aside className="arch-banner">
@@ -138,16 +129,16 @@ export function ArchitectureStage() {
         </p>
       </aside>
 
-      <ul className="arch-legend">
-        <li><i className="swatch-live" /> Live path, proven on the fork or running on Vercel</li>
-        <li><i className="swatch-demo" /> Demo, local only</li>
-        <li><i className="swatch-map" /> Production mapping, not built here</li>
-        <li><i className="swatch-out" /> Explicitly not in the live path</li>
+      <ul className="arch-legend" aria-label="Current evidence labels">
+        <li><i className="swatch-live" /> Deployed route</li>
+        <li><i className="swatch-fork" /> Fork-proven behavior</li>
+        <li><i className="swatch-demo" /> Simulated behavior</li>
+        <li><i className="swatch-out" /> Not used</li>
       </ul>
 
       <p className="arch-hint">
-        The diagram is the whole system. Click a box for protocol and what is
-        real today. On a phone, scroll sideways, or read the list under it.
+        Read the ordered evidence below to inspect each system step. The desktop
+        diagram is a visual summary and offline export.
       </p>
 
       <div className="arch-frame" aria-labelledby={titleId}>
@@ -155,8 +146,8 @@ export function ArchitectureStage() {
           ref={svgRef}
           className="arch-svg"
           viewBox="0 0 1304 392"
-          role="img"
-          aria-labelledby={titleId}
+          aria-hidden="true"
+          focusable="false"
         >
           <title>Morrow payment and inventory race</title>
           <desc>
@@ -174,12 +165,10 @@ export function ArchitectureStage() {
             w={148}
             h={116}
             selected={selectedId === "agents"}
-            status={statusOf("agents")}
+            status={evidenceOf("agents")}
             kicker="BUYER AGENTS"
             lines={["Atlas", "Nova"]}
             note="Same last table"
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <Arrow x1={156} y1={68} x2={208} y2={68} />
@@ -191,12 +180,10 @@ export function ArchitectureStage() {
             w={196}
             h={80}
             selected={selectedId === "merchant"}
-            status={statusOf("merchant")}
+            status={evidenceOf("merchant")}
             kicker="MERCHANT API / VERCEL"
             lines={["GET /api/capabilities", "GET /api/commit"]}
             note="HTTP 402"
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <Arrow x1={406} y1={68} x2={438} y2={68} />
@@ -208,12 +195,10 @@ export function ArchitectureStage() {
             w={188}
             h={80}
             selected={selectedId === "terms"}
-            status={statusOf("terms")}
+            status={evidenceOf("terms")}
             kicker="402 TERMS"
             lines={["scheme exact", "Permit2 · 0.20 XSGD"]}
             note="200000 · 600s"
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <Arrow x1={628} y1={68} x2={660} y2={68} />
@@ -225,12 +210,10 @@ export function ArchitectureStage() {
             w={188}
             h={80}
             selected={selectedId === "sign"}
-            status={statusOf("sign")}
+            status={evidenceOf("sign")}
             kicker="OFF-CHAIN"
             lines={["Both sign Permit2"]}
             note="Nothing broadcast"
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <Arrow x1={850} y1={68} x2={882} y2={68} />
@@ -242,13 +225,11 @@ export function ArchitectureStage() {
             w={412}
             h={80}
             selected={selectedId === "verify"}
-            status={statusOf("verify")}
+            status={evidenceOf("verify")}
             kicker="FACILITATOR /verify"
             lines={["Merchant verifies both. No funds move."]}
             note="Balance, allowance, nonce, deadline. Still unused."
             fill="acid"
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <Arrow x1={650} y1={108} x2={650} y2={158} down />
@@ -260,7 +241,7 @@ export function ArchitectureStage() {
             w={430}
             h={132}
             selected={selectedId === "inventory"}
-            status={statusOf("inventory")}
+            status={evidenceOf("inventory")}
             kicker="DEMO + PRODUCTION MAPPING"
             lines={["Inventory decision. Exactly one winner."]}
             note="Demo: in-process lock. Mapping: DynamoDB write."
@@ -268,8 +249,6 @@ export function ArchitectureStage() {
               "attribute_not_exists(lockedBy)",
               "OR expiresAt < :now",
             ]}
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <Arrow x1={438} y1={190} x2={480} y2={190} />
@@ -284,7 +263,7 @@ export function ArchitectureStage() {
             w={488}
             h={132}
             selected={selectedId === "settle"}
-            status={statusOf("settle")}
+            status={evidenceOf("settle")}
             kicker="SETTLE WINNER ONLY"
             lines={["facilitator /settle", "Exact proxy then Permit2 then XSGD"]}
             extra={[
@@ -292,8 +271,6 @@ export function ArchitectureStage() {
               ARCHITECTURE_ADDRESSES.permit2,
               ARCHITECTURE_ADDRESSES.xsgd,
             ]}
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <path
@@ -313,12 +290,10 @@ export function ArchitectureStage() {
             w={302}
             h={132}
             selected={selectedId === "loser"}
-            status={statusOf("loser")}
+            status={evidenceOf("loser")}
             kicker="NEVER SETTLED"
             lines={["Discard / expire", "Charged 0.00 XSGD"]}
             note="No refund. There was never a charge."
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <NodeBox
@@ -328,11 +303,9 @@ export function ArchitectureStage() {
             w={420}
             h={56}
             selected={selectedId === "approve"}
-            status={statusOf("approve")}
+            status={evidenceOf("approve")}
             kicker="ONE-TIME, ON-CHAIN"
             lines={["XSGD.approve(Permit2, max). Payer pays gas once."]}
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <NodeBox
@@ -342,11 +315,9 @@ export function ArchitectureStage() {
             w={428}
             h={56}
             selected={selectedId === "fallback"}
-            status={statusOf("fallback")}
+            status={evidenceOf("fallback")}
             kicker="JUDGING FALLBACK"
             lines={["Fork down: UI says DETERMINISTIC_DEMO"]}
-            onSelect={select}
-            onKey={onNodeKey}
           />
 
           <NodeBox
@@ -356,11 +327,9 @@ export function ArchitectureStage() {
             w={424}
             h={56}
             selected={selectedId === "out"}
-            status={statusOf("out")}
+            status={evidenceOf("out")}
             kicker="NOT IN THE LIVE PATH"
             lines={["EIP-3009 · card hold · x402 upto"]}
-            onSelect={select}
-            onKey={onNodeKey}
           />
         </svg>
       </div>
@@ -368,11 +337,23 @@ export function ArchitectureStage() {
       <ol className="arch-story">
         {story.map((node, index) => (
           <li key={node.id}>
-            <button type="button" onClick={() => select(node.id)} data-active={selectedId === node.id}>
+            <button
+              type="button"
+              onClick={() => select(node.id)}
+              data-active={selectedId === node.id}
+              aria-pressed={selectedId === node.id}
+            >
               <span>{String(index + 1).padStart(2, "0")}</span>
               <strong>{node.title}</strong>
-              <em data-status={node.status}>{STATUS_LABEL[node.status]}</em>
+              <span className="arch-evidence-row">
+                {node.evidence.map((evidence) => (
+                  <em key={evidence} data-status={evidence}>{EVIDENCE_LABEL[evidence]}</em>
+                ))}
+              </span>
               <p>{node.does}</p>
+              {node.productionMapping ? (
+                <small>Production mapping: {node.productionMapping}</small>
+              ) : null}
             </button>
           </li>
         ))}
@@ -421,16 +402,18 @@ function DetailPanel({ node }: { node?: ArchitectureNode }) {
     return (
       <section className="arch-detail is-empty" aria-live="polite">
         <h2>Node detail</h2>
-        <p>Click a box. The picture above already has the whole system.</p>
+        <p>Select a system step above to inspect its protocol and current evidence.</p>
       </section>
     );
   }
 
   return (
     <section className="arch-detail" aria-live="polite">
-      <p className="arch-detail-status" data-status={node.status}>
-        {STATUS_LABEL[node.status]}
-      </p>
+      <div className="arch-detail-status">
+        {node.evidence.map((evidence) => (
+          <span key={evidence} data-status={evidence}>{EVIDENCE_LABEL[evidence]}</span>
+        ))}
+      </div>
       <h2>{node.title}</h2>
       <dl>
         <div>
@@ -445,6 +428,12 @@ function DetailPanel({ node }: { node?: ArchitectureNode }) {
           <dt>What is real today</dt>
           <dd>{node.today}</dd>
         </div>
+        {node.productionMapping ? (
+          <div>
+            <dt>Production mapping</dt>
+            <dd>{node.productionMapping} · not running in this build</dd>
+          </div>
+        ) : null}
       </dl>
     </section>
   );
@@ -487,8 +476,6 @@ function NodeBox({
   status,
   selected,
   fill,
-  onSelect,
-  onKey,
 }: {
   id: string;
   x: number;
@@ -499,11 +486,9 @@ function NodeBox({
   lines: string[];
   note?: string;
   extra?: string[];
-  status: ArchitectureStatus;
+  status: ArchitectureEvidence;
   selected: boolean;
   fill?: "acid";
-  onSelect: (id: string) => void;
-  onKey: (event: KeyboardEvent<SVGGElement>, id: string) => void;
 }) {
   const labelId = `arch-node-${id}`;
   const acid = fill === "acid";
@@ -514,12 +499,7 @@ function NodeBox({
       data-status={status}
       data-selected={selected || undefined}
       data-fill={fill}
-      tabIndex={0}
-      role="button"
-      aria-pressed={selected}
-      aria-labelledby={labelId}
-      onClick={() => onSelect(id)}
-      onKeyDown={(event) => onKey(event, id)}
+      aria-hidden="true"
     >
       <rect
         x={x}

@@ -1,4 +1,8 @@
-export type ArchitectureStatus = "LIVE" | "DEMO" | "MAPPING" | "OUT";
+export type ArchitectureEvidence =
+  | "DEPLOYED"
+  | "FORK_PROVEN"
+  | "SIMULATED"
+  | "NOT_USED";
 
 export type ArchitectureNode = {
   id: string;
@@ -6,7 +10,8 @@ export type ArchitectureNode = {
   does: string;
   protocol: string;
   today: string;
-  status: ArchitectureStatus;
+  evidence: ArchitectureEvidence[];
+  productionMapping?: string;
 };
 
 export const ARCHITECTURE_NODES: ArchitectureNode[] = [
@@ -16,15 +21,15 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     does: "Two buyer agents request the same scarce SKU, a Friday table.",
     protocol: "HTTP GET. No wallet keys on the merchant.",
     today: "Thin test clients in the demo. They exist to drive the race.",
-    status: "LIVE",
+    evidence: ["SIMULATED"],
   },
   {
     id: "merchant",
     title: "Merchant API on Vercel",
     does: "Publishes policy and the 402. Front-end is this Next.js app.",
-    protocol: "GET /api/capabilities. GET /api/commit returns HTTP 402.",
-    today: "Front-end is on Vercel. GET /api/commit is 503 on the public URL until MERCHANT_WALLET_ADDRESS is set there. Locally it returns 402.",
-    status: "DEMO",
+    protocol: "GET /api/capabilities. GET /api/commit returns 402 only when MERCHANT_WALLET_ADDRESS is set.",
+    today: "Front-end is on Vercel. Public /api/commit is 503 until that env is set. Locally it returns 402.",
+    evidence: ["DEPLOYED"],
   },
   {
     id: "terms",
@@ -32,7 +37,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     does: "Names the asset, amount, payTo, network, and Permit2 method.",
     protocol: "x402 v2. scheme exact. extra.assetTransferMethod = permit2. 200000 atomic, 600s.",
     today: "This is what /api/commit emits. Not EIP-3009. Not upto.",
-    status: "LIVE",
+    evidence: ["DEPLOYED"],
   },
   {
     id: "sign",
@@ -40,7 +45,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     does: "Each agent signs an authorization. Nothing is broadcast.",
     protocol: "Permit2 permitWitnessTransferFrom. Spender is the exact proxy.",
     today: "Proven on the Anvil fork. No real mainnet settlement has been sent.",
-    status: "LIVE",
+    evidence: ["FORK_PROVEN"],
   },
   {
     id: "verify",
@@ -48,7 +53,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     does: "Merchant checks both signatures before touching inventory settlement.",
     protocol: "Facilitator verify. Balance, allowance, nonce, deadline. Still unused.",
     today: "Live adapter on the local fork. Public site falls back if the fork is down.",
-    status: "LIVE",
+    evidence: ["FORK_PROVEN"],
   },
   {
     id: "inventory",
@@ -56,7 +61,8 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     does: "Inventory is decided before settle. The loser is never eligible.",
     protocol: "Demo: in-process lock. Production mapping: DynamoDB conditional write.",
     today: "Hackathon build uses an in-process lock. DynamoDB is not running.",
-    status: "DEMO",
+    evidence: ["SIMULATED"],
+    productionMapping: "DynamoDB conditional write",
   },
   {
     id: "settle",
@@ -64,7 +70,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     does: "Only the winning authorization is submitted. 0.20 XSGD moves.",
     protocol: "Facilitator settle to exact proxy, then Permit2, then XSGD on 43114.",
     today: "Proven on the Anvil mainnet fork. Writes stay local. No mainnet broadcast.",
-    status: "LIVE",
+    evidence: ["FORK_PROVEN"],
   },
   {
     id: "loser",
@@ -72,7 +78,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     does: "The losing authorization is discarded or expires unused.",
     protocol: "Settle is not called. There is no refund because there was no charge.",
     today: "Fork tests show Nova's XSGD unchanged after Atlas settles.",
-    status: "LIVE",
+    evidence: ["FORK_PROVEN"],
   },
   {
     id: "approve",
@@ -80,7 +86,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     does: "Payer approves Permit2 once, on-chain, and pays gas that once.",
     protocol: "XSGD.approve(Permit2, max). Later payments are signatures.",
     today: "Sent on Avalanche mainnet. Tx 0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452. Allowance is max.",
-    status: "LIVE",
+    evidence: ["DEPLOYED"],
   },
   {
     id: "fallback",
@@ -88,15 +94,15 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     does: "If fork RPC or the facilitator is down, the deterministic demo still runs.",
     protocol: "GET /api/demo tries live first. UI labels LIVE_FORK or DETERMINISTIC_DEMO.",
     today: "The mode chip is the source of truth. A viewer must not mistake simulation for a live run.",
-    status: "DEMO",
+    evidence: ["DEPLOYED", "SIMULATED"],
   },
   {
     id: "out",
     title: "Not in the live path",
     does: "These are closed or unused for Morrow's core mechanic.",
-    protocol: "EIP-3009 typehash getters revert on mainnet XSGD. Card MCP cannot hold. SDK upto proxy has 0 bytes on Avalanche.",
+    protocol: "SDK upto proxy has 0 bytes on Avalanche. Card MCP cannot hold. XSGD has EIP-3009; Morrow still ships Permit2.",
     today: "Do not pitch any of these as the spine.",
-    status: "OUT",
+    evidence: ["NOT_USED"],
   },
 ];
 

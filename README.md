@@ -36,6 +36,14 @@ corepack pnpm lint
 corepack pnpm build
 ```
 
+The default test tier is deterministic and does not require Anvil. Before a
+build is considered deployment-ready, start the fork and run the integration tier:
+
+```bash
+cd rail/fork && ./start.sh && cd ../..
+corepack pnpm test:fork
+```
+
 Live fork rehearsal (Foundry required):
 
 ```bash
@@ -44,7 +52,7 @@ cd rail/fork
 ./rehearse.sh
 ```
 
-Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/commit` to emit payment terms. Live settle on that route also needs the fork up and `FORK_RPC` or `FACILITATOR_PRIVATE_KEY` set. `/api/demo` tries `http://127.0.0.1:8545` on its own. The deterministic demo stays as the judging-day fallback. Architecture page (the submission URL): [/architecture](/architecture). Same diagram as a file: [docs/architecture/morrow-architecture.html](docs/architecture/morrow-architecture.html).
+Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/commit` to emit payment terms. Live settle on that route also needs the fork up and `FORK_RPC` or `FACILITATOR_PRIVATE_KEY` set. `/api/demo` tries `http://127.0.0.1:8545` on its own. The deterministic demo stays as the judging-day fallback. The primary submission and demo route is [/](./); [/architecture](/architecture) is supporting technical evidence. Same diagram as a file: [docs/architecture/morrow-architecture.html](docs/architecture/morrow-architecture.html).
 
 ## Agent endpoints
 

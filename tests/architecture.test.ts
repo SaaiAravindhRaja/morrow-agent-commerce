@@ -11,11 +11,14 @@ import {
 } from "@/lib/architecture";
 
 describe("architecture catalog", () => {
-  it("labels live work versus demo versus mapping versus out", () => {
-    const statuses = new Set(ARCHITECTURE_NODES.map((node) => node.status));
-    expect(statuses.has("LIVE")).toBe(true);
-    expect(statuses.has("DEMO")).toBe(true);
-    expect(statuses.has("OUT")).toBe(true);
+  it("separates current evidence from optional production mapping", () => {
+    const evidence = new Set(ARCHITECTURE_NODES.flatMap((node) => node.evidence));
+    expect(evidence).toEqual(
+      new Set(["DEPLOYED", "FORK_PROVEN", "SIMULATED", "NOT_USED"]),
+    );
+    expect(ARCHITECTURE_NODES.every((node) => node.evidence.length > 0)).toBe(true);
+    expect(findArchitectureNode("inventory")?.productionMapping).toMatch(/DynamoDB/);
+    expect(findArchitectureNode("inventory")?.evidence).not.toContain("DEPLOYED");
   });
 
   it("keeps the loser-never-charged claim on the settle split", () => {
@@ -31,10 +34,10 @@ describe("architecture catalog", () => {
     expect(ARCHITECTURE_AWS.some((item) => /production mapping/i.test(item.body))).toBe(true);
   });
 
-  it("does not call the public commit endpoint LIVE while production is 503", () => {
+  it("does not claim public /api/commit returns 402 while production is 503", () => {
     const merchant = findArchitectureNode("merchant");
-    expect(merchant?.status).not.toBe("LIVE");
     expect(merchant?.today).toMatch(/503/);
+    expect(merchant?.protocol).not.toMatch(/returns HTTP 402\.$/);
   });
 
   it("surfaces the three protocol findings a judge should see", () => {

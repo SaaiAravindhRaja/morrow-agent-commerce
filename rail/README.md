@@ -33,11 +33,11 @@ signature.
 
 ```bash
 # fork must already be running (./start.sh). Do not start a second one.
-corepack pnpm test tests/rail.test.ts
-corepack pnpm test
+corepack pnpm test:fork
 ```
 
-If the fork is down, `tests/rail.test.ts` fails loudly. It does not skip.
+If the fork is down, `pnpm test:fork` fails loudly. It does not skip. The normal
+`pnpm test` tier covers deterministic and dead-port behavior without Anvil.
 
 The one real mainnet action (Permit2 approve from MetaMask) is documented in
 [MAINNET-ONCE.md](./MAINNET-ONCE.md). Do not put a private key in this folder.

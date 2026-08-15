@@ -24,21 +24,26 @@ export default function Home() {
       </nav>
 
       <section className="hero shell" id="top">
-        <div className="eyebrow">SCARCITY, MADE PROGRAMMABLE</div>
-        <h1>
-          Agents move fast.
-          <br />
-          Merchants should <em>get paid</em> for keeping up.
-        </h1>
-        <div className="hero-bottom">
+        <div className="hero-copy">
+          <div className="eyebrow">SCARCITY, MADE PROGRAMMABLE</div>
+          <h1>
+            Give agents a way to <em>commit</em>, not just browse.
+          </h1>
           <p>
-            Morrow lets any merchant sell a time-boxed commitment on scarce inventory.
-            One agent wins, one payment settles, and the merchant&apos;s promise becomes a portable receipt.
+            Morrow is the merchant layer for autonomous customers: publish scarce inventory,
+            set commitment terms, settle one winner, and charge every losing agent S$0.
           </p>
-          <div className="network-stamp" aria-label="Payment network">
-            <span>SETTLEMENT</span>
-            <strong>XSGD / AVAX</strong>
-            <small>x402 · C-Chain Mainnet</small>
+        </div>
+        <div className="hero-rail" aria-label="Product and payment summary">
+          <div>
+            <span>TRACK 3 / MERCHANT VALUE</span>
+            <strong>Agents become first-class customers</strong>
+            <p>Machine-readable inventory, policy, payment terms, and receipts.</p>
+          </div>
+          <div>
+            <span>PAYMENT TARGET</span>
+            <strong>x402 · XSGD · Avalanche</strong>
+            <p>Exact Permit2 authorization. Local-fork proof or labelled simulation. No mainnet broadcast.</p>
           </div>
         </div>
       </section>
@@ -49,7 +54,7 @@ export default function Home() {
         <div className="section-kicker">THE MERCHANT CONTRACT</div>
         <div className="contract-grid">
           <div>
-            <h2>Not another agent that shops.</h2>
+            <h2>The merchant decides what a commitment is worth.</h2>
             <p className="contract-lead">
               This is the missing merchant primitive: quote scarcity, collect commitment,
               expose state, and issue a machine-readable receipt for what happened.

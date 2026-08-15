@@ -49,7 +49,7 @@ describe("XSGD payment contract", () => {
   });
 
   it("never puts loopback hosts in the viewer-facing fallback note", () => {
-    const note = viewerFacingNote("DETERMINISTIC_DEMO", "fork RPC unreachable at http://127.0.0.1:8545");
+    const note = viewerFacingNote("DETERMINISTIC_DEMO", "LIVE_PATH_UNAVAILABLE");
     expect(note).toBeDefined();
     expect(containsLoopback(note ?? "")).toBe(false);
     expect(note).toContain(MAINNET_APPROVE_TX);
