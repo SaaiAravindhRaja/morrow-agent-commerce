@@ -65,7 +65,8 @@ show it. If that env is unset, the site shows nothing.
 | 4 | The one-time Permit2 approve succeeds against real XSGD bytecode |
 | 5 | What the real mainnet approve will cost in AVAX |
 
-As of 15 Aug: 14 passed, 0 failed.
+The fork test suite and rehearsal commands are the current source of truth for
+these checks.
 
 ## The finding that matters
 
@@ -84,11 +85,12 @@ if (getAddress(...spender) !== getAddress(x402UptoPermit2ProxyAddress))
 ```
 
 So stock `upto` cannot work on Avalanche. `exact` can, because the SDK's exact
-proxy address matches what is deployed. Full detail in `docs/CORRECTIONS.md` #7.
+proxy address matches what is deployed. `./rehearse.sh` reproduces both code-size
+checks against the pinned fork.
 
 The rehearsal asserts this every run, including the reverse case. If the SDK's
-address ever gets deployed on Avalanche, check 2 flips to FAIL and tells you the
-correction is stale. That is intentional.
+address is deployed on Avalanche later, check 2 flips to FAIL so the product can
+re-evaluate `upto` instead of relying on stale assumptions.
 
 ## Cost of the real mainnet approve
 

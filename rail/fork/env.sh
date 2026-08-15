@@ -28,7 +28,7 @@ X402_EXACT_PROXY=0x402085c248EeA27D92E8b30b2C58ed07f9E20001
 X402_UPTO_PROXY_DEPLOYED=0x402015c795ecb48A360bDC6e35a2EaEb313a0002
 
 # What @x402/evm@2.22.0 hardcodes. ZERO BYTECODE ON AVALANCHE.
-# Signing against this address cannot settle here. See docs/CORRECTIONS.md #7.
+# Signing against this address cannot settle here; rehearse.sh verifies it has no bytecode.
 X402_UPTO_PROXY_SDK=0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002
 
 # --- accounts --------------------------------------------------------------

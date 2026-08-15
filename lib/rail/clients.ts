@@ -108,6 +108,25 @@ export function getFacilitatorPrivateKey(): Hex {
   return FACILITATOR.privateKey;
 }
 
+export function isLoopbackForkRpcUrl(rpcUrl: string): boolean {
+  try {
+    const url = new URL(rpcUrl);
+    const hostname = url.hostname.toLowerCase();
+    return (
+      (url.protocol === "http:" || url.protocol === "https:") &&
+      !url.username &&
+      !url.password &&
+      (hostname === "127.0.0.1" || hostname === "localhost" || hostname === "[::1]")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isAnvilClientVersion(version: unknown): boolean {
+  return typeof version === "string" && /\banvil\b/i.test(version);
+}
+
 function transport(rpcUrl: string, timeout = 8_000) {
   return http(rpcUrl, { timeout });
 }
@@ -138,19 +157,26 @@ export function createForkTestClient(rpcUrl = getRpcUrl()) {
 }
 
 export async function isForkReachable(rpcUrl = getRpcUrl()): Promise<boolean> {
+  if (!isLoopbackForkRpcUrl(rpcUrl)) return false;
+
   try {
     const client = createPublicClient({
       chain: avalanche,
       transport: transport(rpcUrl, 1_500),
     });
-    const chainId = await client.getChainId();
-    return chainId === FORK_CHAIN_ID;
+    const [chainId, clientVersion] = await Promise.all([
+      client.getChainId(),
+      client.request({ method: "web3_clientVersion" }),
+    ]);
+    return chainId === FORK_CHAIN_ID && isAnvilClientVersion(clientVersion);
   } catch {
     return false;
   }
 }
 
 export function isForkReachableSync(rpcUrl = getRpcUrl()): boolean {
+  if (!isLoopbackForkRpcUrl(rpcUrl)) return false;
+
   try {
     const result = execFileSync(
       "curl",
@@ -163,12 +189,23 @@ export function isForkReachableSync(rpcUrl = getRpcUrl()): boolean {
         "-H",
         "content-type: application/json",
         "--data",
-        '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}',
+        '[{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]},{"jsonrpc":"2.0","id":2,"method":"web3_clientVersion","params":[]}]',
         rpcUrl,
       ],
       { encoding: "utf8", timeout: 2_500, stdio: ["ignore", "pipe", "pipe"] },
     );
-    return result.toLowerCase().includes("0xa86a");
+    const responses: unknown = JSON.parse(result);
+    if (!Array.isArray(responses)) return false;
+
+    const chainId = responses.find(
+      (response): response is { id: number; result: unknown } =>
+        typeof response === "object" && response !== null && "id" in response && response.id === 1,
+    )?.result;
+    const clientVersion = responses.find(
+      (response): response is { id: number; result: unknown } =>
+        typeof response === "object" && response !== null && "id" in response && response.id === 2,
+    )?.result;
+    return chainId === "0xa86a" && isAnvilClientVersion(clientVersion);
   } catch {
     return false;
   }
@@ -177,7 +214,9 @@ export function isForkReachableSync(rpcUrl = getRpcUrl()): boolean {
 export function isLiveRailConfigured(): boolean {
   if (!isEvmAddress(process.env.MERCHANT_WALLET_ADDRESS)) return false;
   if (!process.env.FORK_RPC && !process.env.FACILITATOR_PRIVATE_KEY) return false;
-  return isForkReachableSync();
+  const rpcUrl = getRpcUrl();
+  if (!isLoopbackForkRpcUrl(rpcUrl)) return false;
+  return isForkReachableSync(rpcUrl);
 }
 
 export async function xsgdBalanceOf(address: Address, rpcUrl = getRpcUrl()): Promise<bigint> {

@@ -44,7 +44,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     title: "Both sign Permit2",
     does: "Each agent signs an authorization. Nothing is broadcast.",
     protocol: "Permit2 permitWitnessTransferFrom. Spender is the exact proxy.",
-    today: "Proven on the Anvil fork. No real mainnet settlement has been sent.",
+    today: "Proven on the Anvil fork. No verified mainnet settlement hash is configured on the deployment.",
     evidence: ["FORK_PROVEN"],
   },
   {
@@ -60,7 +60,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     title: "Exactly one winner",
     does: "Inventory is decided before settle. The loser is never eligible.",
     protocol: "Demo: in-process lock. Production mapping: DynamoDB conditional write.",
-    today: "Hackathon build uses an in-process lock. DynamoDB is not running.",
+    today: "Current implementation uses an in-process lock. DynamoDB is not running.",
     evidence: ["SIMULATED"],
     productionMapping: "DynamoDB conditional write",
   },
@@ -90,10 +90,10 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: "fallback",
-    title: "Judging-day fallback",
-    does: "If fork RPC or the facilitator is down, the deterministic demo still runs.",
-    protocol: "GET /api/demo tries live first. The proof panel names the path that ran.",
-    today: "A fork run reads as settled on a mainnet fork. A fallback run reads as a simulated walkthrough. Those two sentences never match.",
+    title: "Safe checkout test",
+    does: "If the local fork is unavailable, the sample checkout still rehearses the merchant flow.",
+    protocol: "GET /api/demo tries the local fork first, then returns a deterministic sample result. The checkout panel names the path that ran.",
+    today: "A fork run reads as settled on a mainnet fork. A fallback reads as a simulated walkthrough. The merchant UI identifies both as a test with sample buyers and no customer charge.",
     evidence: ["DEPLOYED", "SIMULATED"],
   },
   {
@@ -117,7 +117,7 @@ export const ARCHITECTURE_AWS = [
   },
   {
     title: "Compensating action",
-    body: "Never settle the loser. On timeout, skip settle and release the lock only if lockedBy still matches.",
+    body: "Never settle the loser. An ambiguous settlement result keeps inventory locked for reconciliation and disables automatic retry. Release only after a definite pre-transaction failure and an ownership check.",
   },
   {
     title: "Observability",
@@ -128,19 +128,19 @@ export const ARCHITECTURE_AWS = [
 export const ARCHITECTURE_RESEARCH = [
   {
     id: "upto",
-    title: "Correction 7. Stock upto cannot run on Avalanche",
+    title: "Why stock upto is unavailable on Avalanche",
     body: "@x402/evm@2.22.0 hardcodes the upto proxy at 0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002. That address has zero bytecode on Avalanche C-Chain. A real upto proxy sits at 0x402015c795ecb48A360bDC6e35a2EaEb313a0002 and matches the SDK witness typehash, but the facilitator rejects any other spender. exact works because the SDK exact proxy matches what is deployed.",
     reproduce: "cd rail/fork && ./start.sh && ./rehearse.sh   # section 2 asserts SDK upto code size is 0, and fails if that ever changes",
   },
   {
     id: "eip3009-exists",
-    title: "Correction 12. Mainnet XSGD does support EIP-3009",
+    title: "Mainnet XSGD supports EIP-3009",
     body: "TRANSFER_WITH_AUTHORIZATION_TYPEHASH and RECEIVE_WITH_AUTHORIZATION_TYPEHASH return the canonical constants. authorizationState resolves. DOMAIN_SEPARATOR() and version() still revert. Saying XSGD has no EIP-3009 is false. Morrow still ships Permit2. That is a product choice, not a token limitation.",
     reproduce: "cast call 0xb2F85b7AB3c2b6f62DF06dE6aE7D09c010a5096E \"TRANSFER_WITH_AUTHORIZATION_TYPEHASH()(bytes32)\" --rpc-url https://api.avax.network/ext/bc/C/rpc",
   },
   {
     id: "domain",
-    title: "Correction 14. Domain version is 2, recovered then reproduced",
+    title: "Verified XSGD signing domain",
     body: "Live 0xGasless tx 0xe352cde5b79d5035848bf7fda7860e8798802c961944470fbf2e61f8b65a630c recovers only against name XSGD, version 2, chainId 43114, verifyingContract the XSGD proxy. A fresh anvil signature then settled 0.20 XSGD on the fork. Stock @x402/evm exact + eip3009 verified and settled. Shipping rail stays Permit2.",
     reproduce: "cast tx 0xe352cde5b79d5035848bf7fda7860e8798802c961944470fbf2e61f8b65a630c --rpc-url https://api.avax.network/ext/bc/C/rpc",
   },

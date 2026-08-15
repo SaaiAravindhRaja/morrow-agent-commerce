@@ -11,6 +11,16 @@ import {
 } from "@/lib/policies";
 
 describe("merchant policy compiler", () => {
+  it("keeps the seeded Atlas Bistro inventory coherent", () => {
+    expect(COMMITMENT_POLICIES).toHaveLength(4);
+    expect(COMMITMENT_POLICIES.every((policy) => policy.category === "DINING")).toBe(true);
+    expect(COMMITMENT_POLICIES.some((policy) => policy.id === "policy-counter-1930")).toBe(true);
+    expect(COMMITMENT_POLICIES.every((policy) => policy.exercised <= policy.claimed)).toBe(true);
+
+    const activePolicies = COMMITMENT_POLICIES.filter((policy) => policy.status === "ACTIVE");
+    expect(activePolicies.every((policy) => compilePolicy(policy).inventory.available === 1)).toBe(true);
+  });
+
   it("converts SGD into XSGD atomic units without floating point arithmetic", () => {
     expect(parseSgdToAtomic("0.20")).toBe(200_000n);
     expect(parseSgdToAtomic("2.5")).toBe(2_500_000n);

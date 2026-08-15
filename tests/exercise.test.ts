@@ -68,7 +68,7 @@ describe("exercise cannot be abused", () => {
   });
 
   it("rejects an unsettled commitment", () => {
-    rememberUnsettled("commitment-pending", PAYER);
+    rememberUnsettled({ id: "commitment-pending", payer: PAYER });
     const result = exerciseCommitment("commitment-pending", 1);
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -99,7 +99,7 @@ describe("POST /api/exercise", () => {
     expect(missing.status).toBe(404);
     expect((await missing.json()).code).toBe("UNKNOWN_COMMITMENT");
 
-    rememberUnsettled("pending-http", PAYER);
+    rememberUnsettled({ id: "pending-http", payer: PAYER });
     const pending = await postExercise(
       new Request("https://morrow.example/api/exercise", {
         method: "POST",

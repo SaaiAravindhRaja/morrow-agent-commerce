@@ -1844,18 +1844,13 @@ textarea:focus-visible {
   margin-top: auto;
   padding: 8px 9px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 10px;
   border: 1px solid transparent;
   border-radius: var(--app-radius);
   background: transparent;
   text-align: left;
-}
-
-.merchant-switcher:hover {
-  border-color: var(--app-line);
-  background: rgba(255, 255, 255, 0.55);
 }
 
 .merchant-avatar {
@@ -3041,8 +3036,8 @@ dl dd {
 }
 
 .proof-panel-header {
-  min-height: 88px;
-  padding: 17px 19px;
+  min-height: 72px;
+  padding: 13px 17px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3063,8 +3058,8 @@ dl dd {
 }
 
 .proof-notice {
-  min-height: 54px;
-  padding: 11px 18px;
+  min-height: 46px;
+  padding: 8px 16px;
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -3098,14 +3093,14 @@ dl dd {
 
 .proof-timeline {
   margin: 0;
-  padding: 17px 19px;
+  padding: 12px 17px;
   display: grid;
   list-style: none;
   border-right: 1px solid var(--app-line);
 }
 
 .proof-timeline li {
-  min-height: 58px;
+  min-height: 47px;
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 11px;
@@ -3160,10 +3155,10 @@ dl dd {
 }
 
 .proof-timeline p {
-  margin: 3px 0 0;
+  margin: 2px 0 0;
   color: var(--app-muted);
   font-size: 10px;
-  line-height: 1.4;
+  line-height: 1.25;
 }
 
 .proof-timeline li[data-state="pending"] strong,
@@ -3172,10 +3167,11 @@ dl dd {
 }
 
 .proof-outcome {
-  padding: 18px;
+  padding: 12px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-content: start;
-  gap: 13px;
+  gap: 9px;
   background: #fafbf9;
 }
 
@@ -3188,7 +3184,14 @@ dl dd {
 }
 
 .proof-offer {
-  padding: 14px;
+  grid-column: 1;
+  grid-row: 1;
+  padding: 11px 13px;
+}
+
+.proof-buyers {
+  grid-column: 2;
+  grid-row: 1;
 }
 
 .proof-offer > span,
@@ -3209,18 +3212,18 @@ dl dd {
 
 .proof-offer dl,
 .proof-receipt dl {
-  margin-top: 9px;
+  margin-top: 6px;
 }
 
 .proof-offer dl > div,
 .proof-receipt dl > div {
-  min-height: 31px;
+  min-height: 26px;
   font-size: 9px;
 }
 
 .proof-buyers > div {
-  min-height: 59px;
-  padding: 9px 12px;
+  min-height: 50px;
+  padding: 7px 11px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
@@ -3282,8 +3285,19 @@ dl dd {
 }
 
 .proof-receipt {
-  padding: 13px 14px;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  padding: 10px 13px;
   transition: border-color 160ms ease, background 160ms ease;
+}
+
+.proof-receipt dl {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.proof-receipt dl > div {
+  border-bottom: 0;
 }
 
 .proof-receipt[data-visible="true"] {
@@ -3416,10 +3430,6 @@ dl dd {
 
 .settings-card .key-values {
   margin: 17px 0;
-}
-
-.settings-card > .button {
-  margin-top: auto;
 }
 
 .configured-state {
@@ -3752,6 +3762,26 @@ dl dd {
   .proof-panel-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .proof-outcome {
+    grid-template-columns: 1fr;
+  }
+
+  .proof-offer,
+  .proof-buyers,
+  .proof-receipt {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .proof-receipt dl {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .proof-receipt dl > div {
+    border-bottom: 1px solid #e8e9e5;
   }
 
   .proof-actions,

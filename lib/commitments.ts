@@ -9,6 +9,8 @@ export type Commitment = {
   sku: string;
   payer: string;
   amountAtomic: bigint;
+  authorizationFingerprint?: string;
+  network?: string;
   transaction?: string;
   settledAt?: number;
   expiresAt?: number;
@@ -45,14 +47,57 @@ export function resetCommitments(): void {
   bookingSeq = 0;
 }
 
+export function resetCommitment(id: string): void {
+  store.delete(id);
+}
+
 export function getCommitment(id: string): Commitment | undefined {
   return store.get(id);
 }
 
-export function rememberUnsettled(id: string, payer: string, sku = id): Commitment {
+export function rememberUnsettled(input: {
+  id: string;
+  payer: string;
+  sku?: string;
+  amountAtomic?: bigint;
+  authorizationFingerprint?: string;
+  network?: string;
+  transaction?: string;
+}): Commitment {
+  const {
+    id,
+    payer,
+    sku = id,
+    amountAtomic = COMMITMENT_PRICE_ATOMIC,
+    authorizationFingerprint,
+    network,
+    transaction,
+  } = input;
   const existing = store.get(id);
-  if (existing) return existing;
-  const pending: Commitment = { id, sku, payer, amountAtomic: COMMITMENT_PRICE_ATOMIC, status: "PENDING" };
+  if (existing) {
+    if (existing.status !== "PENDING" || existing.payer.toLowerCase() !== payer.toLowerCase()) {
+      return existing;
+    }
+
+    const pending: Commitment = {
+      ...existing,
+      authorizationFingerprint: authorizationFingerprint ?? existing.authorizationFingerprint,
+      network: network ?? existing.network,
+      transaction: transaction || existing.transaction,
+    };
+    store.set(id, pending);
+    return pending;
+  }
+  const pending: Commitment = {
+    id,
+    sku,
+    payer,
+    amountAtomic,
+    authorizationFingerprint,
+    network,
+    transaction: transaction || undefined,
+    status: "PENDING",
+  };
   store.set(id, pending);
   return pending;
 }
@@ -63,16 +108,21 @@ export function recordSettlement(input: {
   payer: string;
   amountAtomic: bigint;
   transaction: string;
+  authorizationFingerprint?: string;
+  network?: string;
   now?: number;
   durationSeconds?: number;
 }): Commitment {
   const now = input.now ?? Math.floor(Date.now() / 1000);
   const duration = input.durationSeconds ?? COMMITMENT_DURATION_SECONDS;
+  const pending = store.get(input.id);
   const next: Commitment = {
     id: input.id,
     sku: input.sku,
     payer: input.payer,
     amountAtomic: input.amountAtomic,
+    authorizationFingerprint: input.authorizationFingerprint ?? pending?.authorizationFingerprint,
+    network: input.network ?? pending?.network,
     transaction: input.transaction,
     settledAt: now,
     expiresAt: now + duration,

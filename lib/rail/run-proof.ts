@@ -8,7 +8,7 @@ import {
   type DemoContender,
   type DemoProofResponse,
 } from "@/lib/commerce";
-import { exerciseCommitment, recordSettlement, resetCommitments } from "@/lib/commitments";
+import { exerciseCommitment, recordSettlement, resetCommitment } from "@/lib/commitments";
 import { DEMO_SKU, claimInventory, releaseInventory, resetInventory } from "@/lib/inventory";
 import {
   ATLAS,
@@ -92,7 +92,7 @@ export async function runProof(options?: {
 
     await ensureAgentsReady(rpcUrl);
     resetInventory(DEMO_SKU);
-    resetCommitments();
+    resetCommitment(DEMO_SKU);
 
     const requirements = defaultRequirements(MERCHANT.address);
     const atlasAuth = await createAuthorization(ATLAS.privateKey, { rpcUrl, requirements });

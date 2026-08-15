@@ -46,9 +46,9 @@ describe("architecture catalog", () => {
 
   it("surfaces the three protocol findings a judge should see", () => {
     const titles = ARCHITECTURE_RESEARCH.map((item) => item.title).join(" ");
-    expect(titles).toMatch(/Correction 7/);
-    expect(titles).toMatch(/Correction 12/);
-    expect(titles).toMatch(/Correction 14/);
+    expect(titles).toMatch(/upto/i);
+    expect(titles).toMatch(/EIP-3009/);
+    expect(titles).toMatch(/signing domain/i);
   });
 
   it("describes the proof panel in the words the UI actually shows", () => {

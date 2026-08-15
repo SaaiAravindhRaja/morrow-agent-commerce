@@ -8,6 +8,7 @@ import {
   X402_EXACT_PERMIT2_PROXY,
   XSGD,
 } from "@/lib/commerce";
+import { getCommitment, recordSettlement, resetCommitment } from "@/lib/commitments";
 import {
   ATLAS,
   FORK_CHAIN_ID,
@@ -197,6 +198,30 @@ describe("runProof fallback", () => {
     expect(atlasFirst.contenders.find((contender) => contender.settled)?.id).toBe("agent-a");
     expect(novaFirst.contenders.filter((contender) => contender.settled)).toHaveLength(1);
     expect(atlasFirst.contenders.filter((contender) => contender.settled)).toHaveLength(1);
+  });
+
+  it("preserves another policy commitment while resetting the demo proof", async () => {
+    const otherCommitmentId = "SG-0730";
+    recordSettlement({
+      id: otherCommitmentId,
+      sku: otherCommitmentId,
+      payer: ATLAS.address,
+      amountAtomic: 500_000n,
+      transaction: `0x${"c".repeat(64)}`,
+    });
+
+    try {
+      const result = await runProof();
+
+      expect(result.proofMode).toBe("LIVE_FORK");
+      expect(getCommitment(otherCommitmentId)).toMatchObject({
+        id: otherCommitmentId,
+        status: "SETTLED",
+        amountAtomic: 500_000n,
+      });
+    } finally {
+      resetCommitment(otherCommitmentId);
+    }
   });
 
   it("returns DETERMINISTIC_DEMO and never throws when RPC is a dead port", async () => {

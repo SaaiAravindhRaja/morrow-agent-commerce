@@ -18,7 +18,7 @@ The current demo uses a restaurant slot because it makes contention easy to unde
 - a zero-charge loser, because their authorization is never settled
 - Anvil mainnet fork rehearsal (`rail/fork/`): real XSGD bytecode, Permit2 approve, `exact` proxy deployed
 
-The public Vercel site runs the deterministic simulation. The demo tries the live fork first and falls back. The proof panel says settled on a mainnet fork or simulated walkthrough, never the same sentence for both. This preview does not broadcast a real mainnet payment.
+The public Vercel app includes a sample checkout that demonstrates the inventory and receipt lifecycle without charging a customer. Its `/api/commit` route publishes real x402 payment terms, while signed settlement is deliberately disabled in the hosted environment. The Anvil harness proves the settlement path separately against a local fork of Avalanche mainnet, and the checkout panel distinguishes a fork settlement from a simulated walkthrough.
 
 One real Avalanche mainnet transaction exists: the one-time Permit2 approve, [`0xd29b48e9…dc6452`](https://snowtrace.io/tx/0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452), block 92847340. It grants Permit2 an allowance. **It moves no XSGD and it is not a settlement.** No XSGD has moved on mainnet. Do not claim an AWS deployment or a mainnet settlement.
 
@@ -54,7 +54,7 @@ cd rail/fork
 ./rehearse.sh
 ```
 
-Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/commit` to emit payment terms. Live settle on that route also needs the fork up and `FORK_RPC` or `FACILITATOR_PRIVATE_KEY` set. `/api/demo` tries `http://127.0.0.1:8545` on its own. The deterministic demo stays as the judging-day fallback. The primary submission and demo route is [/](./); [/architecture](/architecture) is supporting technical evidence. Same diagram as a file: [docs/architecture/morrow-architecture.html](docs/architecture/morrow-architecture.html).
+Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/commit` to emit payment terms. Live settlement on that route also needs the local fork and either `FORK_RPC` or `FACILITATOR_PRIVATE_KEY`. `/api/demo` tries `http://127.0.0.1:8545` and returns the sample result when the local fork is unavailable. The primary product route is [/](./); [/architecture](/architecture) contains the technical evidence and production mapping.
 
 ## Agent endpoints
 

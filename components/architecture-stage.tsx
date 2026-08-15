@@ -115,7 +115,7 @@ export function ArchitectureStage() {
           decides inventory first, then settles only Atlas. Nova&apos;s authorization
           is discarded, so there is nothing to refund. Front-end is on Vercel.
           Settlement is proven on a local Anvil mainnet fork. AWS is not running.
-          No real mainnet settlement has been sent.
+          No verified mainnet settlement hash is configured on this deployment.
         </p>
         <p className="arch-error" aria-live="polite">{downloadStatus}</p>
       </header>
@@ -123,7 +123,7 @@ export function ArchitectureStage() {
       <aside className="arch-banner">
         <strong>AWS Well-Architected, as drawn</strong>
         <p>
-          This page demonstrates the principles. The hackathon implementation is
+          This page demonstrates the principles. The current implementation is
           the Anvil fork plus an in-process lock. AWS services on this page are
           a production mapping, not a running account.
         </p>
@@ -316,8 +316,8 @@ export function ArchitectureStage() {
             h={56}
             selected={selectedId === "fallback"}
             status={evidenceOf("fallback")}
-            kicker="JUDGING FALLBACK"
-            lines={["Fork down: panel says simulated walkthrough"]}
+            kicker="SAFE CHECKOUT TEST"
+            lines={["Fork down: simulated walkthrough"]}
           />
 
           <NodeBox
@@ -364,8 +364,8 @@ export function ArchitectureStage() {
       <section className="arch-aws" aria-labelledby="research-title">
         <h2 id="research-title">What we actually verified on Avalanche</h2>
         <p className="arch-aws-note">
-          This is the x402 research. It is why we ship exact + Permit2. None of
-          it is a guess.
+          These findings were reproduced against pinned mainnet bytecode and
+          read-only Avalanche RPC calls.
         </p>
         <div className="arch-aws-grid">
           {ARCHITECTURE_RESEARCH.map((item) => (
@@ -379,10 +379,10 @@ export function ArchitectureStage() {
       </section>
 
       <section className="arch-aws" aria-labelledby="aws-title">
-        <h2 id="aws-title">What the AWS judge is looking at</h2>
+        <h2 id="aws-title">AWS production mapping</h2>
         <p className="arch-aws-note">
           Production mapping. None of these AWS services are running in the
-          hackathon build.
+          current implementation.
         </p>
         <div className="arch-aws-grid">
           {ARCHITECTURE_AWS.map((item) => (

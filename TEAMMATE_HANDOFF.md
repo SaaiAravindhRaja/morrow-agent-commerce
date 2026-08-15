@@ -49,9 +49,9 @@ cd rail/fork
 
 1. **Problem:** "Most teams make agents better shoppers. Morrow gives merchants a way to price the cost of agent uncertainty on scarce inventory."
 2. **Product:** "A merchant publishes a paid ten-minute non-refundable commitment deposit. The price is 0.20 XSGD, on x402 exact, authorized with Permit2."
-3. **Run the proof:** Click **Run the proof**. "Two agents want the final slot. The merchant resolves inventory first. Only Atlas is settled. Nova pays S$0 because we never settle their authorization."
-4. **Mode, say this out loud:** Read the on-screen mode label. If it says live fork: "This run is on the live Avalanche mainnet fork. Nothing was broadcast to real mainnet." If it says simulation: "This run is the deterministic simulation. Same inventory story, no payment broadcast."
-5. **Track 3:** "This is a merchant API and lifecycle for AI customers, not another shopping agent. Restaurants are the first wedge."
+3. **Show the checkout:** Open **Test checkout** and click **Run test**. "Two sample buyers want the final slot. The merchant resolves inventory first. Only Atlas is eligible to settle. Nova pays S$0 because we never settle their authorization."
+4. **Read the proof mode, then show the receipt:** "Settled on a mainnet fork means the local rehearsal executed the payment path against forked Avalanche state. Simulated walkthrough means the hosted fallback used sample payment data and did not settle funds. The winner receives full credit, while the losing authorization is never charged."
+5. **Track 3:** "This is a merchant API and lifecycle for agent customers, not another shopping agent. Restaurants are the first wedge."
 
 ## What is real and what is simulated
 
@@ -60,33 +60,33 @@ Real and verified in the build:
 - XSGD contract, six decimals, Avalanche C-Chain mainnet, and 200000 atomic-unit price
 - x402 v2 `exact` payment requirements with Permit2 (not EIP-3009, not `upto`)
 - merchant capability endpoints and payment-term response
-- deterministic inventory contention, winner/loser states, and receipt schema
+- sample inventory contention, winner/loser states, and receipt schema
 - "loser is never charged" by never calling settle on the loser
 - Anvil mainnet fork rehearsal (`rail/fork/`): real XSGD bytecode, Permit2 approve, `exact` proxy deployed and matching the SDK
 
 Now in the app:
 
-- `/api/demo` tries the Anvil fork first and falls back to the deterministic simulation
-- the proof panel says settled on a mainnet fork or simulated walkthrough, never the same sentence for both
+- `/api/demo` tries the Anvil fork first and returns the sample checkout result when the fork is unavailable
+- the checkout panel says settled on a mainnet fork or simulated walkthrough, never the same sentence for both
+- the customer-facing UI identifies the flow as a test with sample buyers and no customer charge
 - capability copy and `/architecture` say Permit2, not EIP-3009
 - fork tests cover verify both, settle winner only, reject replay, reject expired
 - `/` is the URL to submit and run for judges
-- `/architecture` is the supporting technical evidence route. File copy still at `docs/architecture/morrow-architecture.html`
+- `/architecture` is the supporting technical evidence route
 
 Intentionally simulated or not done:
 
-- public Vercel site, which may still be the deterministic simulation
-- funded XSGD mainnet transaction (none has been sent)
-- Dewa's one-time Permit2 `approve` (he must send this himself; it has not happened)
+- customer settlement on the public Vercel site; signed POST requests are rejected without forwarding the authorization
+- verified XSGD mainnet settlement; no settlement hash is configured for this deployment
 - cryptographic receipt signature
 - AWS infrastructure (no credits; diagram maps Well-Architected principles; implementation is the fork plus an in-process lock)
 - StraitsX card holds (the card MCP cannot do holds; do not pitch the card as the spine)
 
-The deterministic demo stays as the judging-day fallback. Do not claim a live mainnet payment.
+The one-time Permit2 approval has been sent on Avalanche mainnet. It moves no XSGD and is not a settlement. Do not claim a live mainnet payment or an AWS deployment.
 
 ## Highest-value next steps
 
-1. Rehearse the script until it consistently finishes under one minute, including the spoken mode line.
-2. Confirm the on-screen mode label matches what you say. If the live fork is down, say simulation.
-3. Dewa sends the one-time Permit2 approve himself after a clean `./rehearse.sh`. Nobody else sends mainnet transactions.
-4. Keep the deterministic demo as the reliable fallback during judging.
+1. Rehearse the script until it consistently finishes under one minute.
+2. Keep the public product story on merchant value; use `/architecture` only when a judge asks how the rail works.
+3. Describe the hosted flow as a sample checkout and the Anvil path as fork-proven settlement behavior.
+4. Do not send a mainnet settlement unless the team deliberately approves the exact transaction immediately beforehand.

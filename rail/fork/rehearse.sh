@@ -63,7 +63,7 @@ else
 fi
 
 # --- 2. which x402 proxies exist here --------------------------------------
-head_ "2. x402 proxy deployment on Avalanche (see docs/CORRECTIONS.md #7)"
+head_ "2. x402 proxy deployment on Avalanche"
 codesize() { local c; c=$(fork code "$1"); echo $(( (${#c} - 2) / 2 )); }
 
 EXACT_SZ=$(codesize "$X402_EXACT_PROXY")
@@ -76,9 +76,9 @@ UPTO_DEP_SZ=$(codesize "$X402_UPTO_PROXY_DEPLOYED")
 
 UPTO_SDK_SZ=$(codesize "$X402_UPTO_PROXY_SDK")
 if [ "$UPTO_SDK_SZ" -eq 0 ]; then
-  ok "SDK's upto address has 0 bytes here, confirming correction 7"
+  ok "SDK's upto address has 0 bytes here"
 else
-  bad "SDK's upto address now HAS code ($UPTO_SDK_SZ bytes). Correction 7 is stale, re-check it"
+  bad "SDK's upto address now HAS code ($UPTO_SDK_SZ bytes). Re-evaluate the upto path"
 fi
 
 WTS=$(fork call "$X402_UPTO_PROXY_DEPLOYED" "WITNESS_TYPE_STRING()(string)" 2>/dev/null | tr -d '"')

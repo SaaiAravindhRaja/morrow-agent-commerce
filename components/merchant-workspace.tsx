@@ -3,7 +3,6 @@
 import {
   ArrowLeft,
   ArrowSquareOut,
-  CaretDown,
   CheckCircle,
   Clock,
   Code,
@@ -60,7 +59,7 @@ const NAV_ITEMS = [
 const ACTIVITY = [
   { title: "Commitment exercised", detail: "Atlas · Friday dinner commitment", time: "2 min ago", kind: "success" },
   { title: "Losing authorization discarded", detail: "Nova · balance delta 0.00 XSGD", time: "2 min ago", kind: "neutral" },
-  { title: "Policy published", detail: "Same-day consultation hold", time: "Yesterday", kind: "neutral" },
+  { title: "Policy published", detail: "Chef's counter release", time: "Yesterday", kind: "neutral" },
   { title: "Commitment expired", detail: "Friday dinner commitment · fee retained", time: "Aug 14", kind: "warning" },
 ];
 
@@ -206,11 +205,10 @@ export function MerchantWorkspace() {
             );
           })}
         </nav>
-        <button className="merchant-switcher" type="button">
+        <div className="merchant-switcher" aria-label="Current merchant">
           <span className="merchant-avatar">AB</span>
           <span><small>Merchant</small><strong>Atlas Bistro</strong></span>
-          <CaretDown size={15} aria-hidden="true" />
-        </button>
+        </div>
       </aside>
 
       <div className="app-body">
@@ -278,7 +276,6 @@ export function MerchantWorkspace() {
               onDraft={setDraft}
               onCancel={() => editingId && selectedPolicy ? setView("detail") : setView("list")}
               onSubmit={publishPolicy}
-              onNotice={setNotice}
             />
           ) : null}
 
@@ -532,7 +529,6 @@ function PolicyEditor({
   onDraft,
   onCancel,
   onSubmit,
-  onNotice,
 }: {
   draft: PolicyDraft;
   errors: string[];
@@ -541,7 +537,6 @@ function PolicyEditor({
   onDraft: (draft: PolicyDraft) => void;
   onCancel: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onNotice: (notice: string) => void;
 }) {
   const compiled = preview ? compilePolicy(preview) : null;
   const feeLabel = (() => {
@@ -552,7 +547,7 @@ function PolicyEditor({
       <PageHeader
         title={editing ? "Edit commitment" : "Create commitment"}
         description="Define the customer promise once, then publish it for people and agents."
-        actions={<><button className="button button-secondary" type="button" onClick={() => onNotice("Draft saved in this session")}>Save draft</button><button className="button button-primary" type="submit" disabled={errors.length > 0}><CheckCircle size={17} weight="bold" />{editing ? "Update commitment" : "Publish commitment"}</button></>}
+        actions={<button className="button button-primary" type="submit" disabled={errors.length > 0}><CheckCircle size={17} weight="bold" />{editing ? "Update commitment" : "Publish commitment"}</button>}
       />
       <div className="editor-layout">
         <div className="editor-form">
@@ -638,7 +633,7 @@ function ActivitySection() {
     <>
       <PageHeader title="Activity" description="A readable audit trail for merchant policy and payment outcomes." />
       <section className="surface activity-panel">
-        <div className="surface-header"><div><h2>Recent activity</h2><p>Settlement receipts and policy changes.</p></div><button className="button button-secondary" type="button"><Funnel size={16} />Filter</button></div>
+        <div className="surface-header"><div><h2>Recent activity</h2><p>Settlement receipts and policy changes.</p></div></div>
         <ol className="activity-list">
           {ACTIVITY.map((event) => <li key={`${event.title}-${event.time}`}><span data-kind={event.kind}><Pulse size={17} /></span><div><strong>{event.title}</strong><p>{event.detail}</p></div><time>{event.time}</time></li>)}
         </ol>
@@ -652,7 +647,7 @@ function SettingsSection() {
     <>
       <PageHeader title="Settings" description="Merchant identity, settlement account, and buyer safeguards." />
       <div className="settings-grid">
-        <section className="surface settings-card"><div className="settings-heading"><Storefront size={21} /><div><h2>Merchant profile</h2><p>Identity shown to buyer agents.</p></div></div><dl className="key-values"><div><dt>Merchant</dt><dd>Atlas Bistro</dd></div><div><dt>Region</dt><dd>Singapore</dd></div><div><dt>Settlement asset</dt><dd>XSGD</dd></div></dl><button className="button button-secondary" type="button">Edit profile</button></section>
+        <section className="surface settings-card"><div className="settings-heading"><Storefront size={21} /><div><h2>Merchant profile</h2><p>Identity shown to buyer agents.</p></div></div><dl className="key-values"><div><dt>Merchant</dt><dd>Atlas Bistro</dd></div><div><dt>Region</dt><dd>Singapore</dd></div><div><dt>Settlement asset</dt><dd>XSGD</dd></div></dl></section>
         <section className="surface settings-card"><div className="settings-heading"><Wallet size={21} /><div><h2>Settlement account</h2><p>Receives commitment payments in XSGD.</p></div></div><div className="configured-state"><CheckCircle size={20} weight="fill" /><div><strong>Settlement account connected</strong><p>The wallet address is hidden from the staff-facing view.</p></div></div></section>
         <section className="surface settings-card"><div className="settings-heading"><ShieldCheck size={21} /><div><h2>Buyer safeguards</h2><p>Rules applied to every commitment checkout.</p></div></div><dl className="key-values"><div><dt>Allocation</dt><dd>Decided before settlement</dd></div><div><dt>Unsuccessful buyers</dt><dd>Not charged</dd></div><div><dt>Exercise</dt><dd>Commitment value credited</dd></div></dl></section>
       </div>

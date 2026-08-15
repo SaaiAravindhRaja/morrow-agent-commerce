@@ -19,4 +19,4 @@ The merchant, not the shopping agent, is the product owner. Morrow gives merchan
 
 ## What exists now
 
-The Vercel MVP is an honest deterministic proof of the product and race. It exposes the merchant capability and x402 terms but does not accept or broadcast payment authorizations. Live settlement remains a separate gate until facilitator compatibility and a funded mainnet transaction are proven.
+The Vercel MVP exposes the merchant capability and x402 terms and includes a sample checkout for the inventory race. It does not accept or broadcast payment authorizations. The payment path is rehearsed separately against an Anvil fork of Avalanche mainnet; no verified mainnet settlement hash is configured in the deployment.

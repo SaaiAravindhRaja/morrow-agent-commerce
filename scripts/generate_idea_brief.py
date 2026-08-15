@@ -209,12 +209,12 @@ def build() -> None:
         [[
             section(
                 "What exists now",
-                "A polished deterministic Vercel proof, agent capability endpoints, exact mainnet asset metadata, the winner/loser race, and a demo receipt.",
+                "A polished Vercel merchant app, capability and x402 payment-term endpoints, a sample checkout race, a machine-readable receipt, and an Anvil mainnet-fork settlement rehearsal.",
                 styles,
             ),
             section(
                 "Honest boundary",
-                "The preview never accepts or broadcasts a wallet authorization. Facilitator compatibility and one funded mainnet transaction remain the live settlement gate.",
+                "The hosted app rejects signed payment authorizations and does not broadcast them. No verified mainnet settlement hash is configured, and AWS remains a production mapping rather than a deployment claim.",
                 styles,
             ),
         ]],
