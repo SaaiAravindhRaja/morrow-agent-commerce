@@ -518,7 +518,7 @@
 
         <rect x="436" y="326" width="428" height="56" fill="#181d18" stroke="#ff6b35" stroke-width="1.4"/>
         <text x="446" y="344" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">JUDGING FALLBACK</text>
-        <text x="446" y="364" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">Fork or facilitator down: UI says DETERMINISTIC_DEMO</text>
+        <text x="446" y="364" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">Fork down: panel says simulated walkthrough</text>
 
         <rect x="872" y="326" width="424" height="56" fill="#181d18" stroke="#ff6b35" stroke-width="1.4"/>
         <text x="882" y="344" fill="#ff6b35" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">NOT IN THE LIVE PATH</text>
@@ -711,7 +711,8 @@
         <span class="tag tag-live">Once per wallet</span>
         <h2>One-time Permit2 approve. After that, payments are signatures.</h2>
         <p>
-          Mainnet XSGD has no EIP-3009. The payer calls
+          Mainnet XSGD supports EIP-3009. Morrow still ships Permit2 as a
+          product choice. The payer calls
           <span class="mono">XSGD.approve(Permit2, max)</span> once, on-chain,
           and pays gas that one time. Every later commitment is an off-chain
           Permit2 signature. "Agent signs, no gas" is true from the second
@@ -727,20 +728,21 @@
         <div class="row row-2" style="margin-top:10px">
           <div class="box live">
             <div class="label">Preferred</div>
-            <h3>LIVE_FORK</h3>
+            <h3>Settled on a mainnet fork</h3>
             <p>
               Demo tries the live path first: local Anvil fork of Avalanche
-              C-Chain at 127.0.0.1:8545, then facilitator verify and settle.
-              Writes stay on the fork. No mainnet broadcast.
+              C-Chain, then facilitator verify and settle.
+              Writes stay on the fork. No mainnet broadcast. The proof panel
+              says settled on a mainnet fork.
             </p>
           </div>
           <div class="box demo">
             <div class="label">If fork RPC or facilitator is down</div>
-            <h3>DETERMINISTIC_DEMO</h3>
+            <h3>Simulated walkthrough</h3>
             <p>
               A deterministic simulation still runs the race and the
-              winner/loser invariant. The UI labels the mode DETERMINISTIC_DEMO
-              in plain words. A viewer cannot mistake it for a live settlement.
+              winner/loser invariant. The proof panel says simulated
+              walkthrough. A viewer cannot mistake it for a live settlement.
             </p>
           </div>
         </div>
@@ -785,8 +787,8 @@
         <div class="box out" style="margin-top:10px;min-height:0">
           <div class="label">EIP-3009</div>
           <p>
-            Mainnet XSGD typehash getters for transferWithAuthorization revert.
-            Fuji sandbox XSGD is a different token. Live path is Permit2.
+            Mainnet XSGD supports EIP-3009. Morrow still ships Permit2.
+            That is a product choice, not a token limitation.
           </p>
         </div>
         <div class="box out" style="margin-top:8px;min-height:0">
@@ -814,7 +816,7 @@
           <li>Verify does not move funds. Settle does, and only for the winner.</li>
           <li>Loser authorization is unused. Charged amount is zero.</li>
           <li>Hackathon lock is in-process. DynamoDB is the production mapping.</li>
-          <li>Fallback is labeled <span class="mono">DETERMINISTIC_DEMO</span>.</li>
+          <li>Fallback is labeled a simulated walkthrough, never settled on a mainnet fork.</li>
           <li>Approve is once. Later payments are signatures.</li>
           <li>Proof path is the Anvil fork, not a live mainnet send.</li>
         </ul>

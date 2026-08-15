@@ -6,6 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import {
   DEMO_PHASES,
   formatXsgd,
+  proofPanelDescription,
+  proofPanelLabel,
+  proofPanelTone,
   type DemoProofResponse,
 } from "@/lib/commerce";
 import { COMMITMENT_POLICIES, type CommitmentPolicy } from "@/lib/policies";
@@ -14,22 +17,6 @@ import { runDemo } from "@/lib/run-demo";
 type ProofLifecycle = "idle" | "attempting" | "playing" | "completed" | "error";
 
 const LAST_PHASE = DEMO_PHASES.length - 1;
-
-function proofLabel(proof: DemoProofResponse | null, lifecycle: ProofLifecycle) {
-  if (lifecycle === "attempting") return "Preparing checkout";
-  if (lifecycle === "error") return "Checkout unavailable";
-  if (lifecycle === "completed" && proof) return "Test complete";
-  if (lifecycle === "playing") return "Checkout in progress";
-  return "Ready to test";
-}
-
-function proofDescription(proof: DemoProofResponse | null, lifecycle: ProofLifecycle) {
-  if (lifecycle === "attempting") return "Preparing authorization, allocation, settlement, and exercise.";
-  if (lifecycle === "error") return "Nothing was charged. Reset and try again.";
-  if (lifecycle === "completed" && proof) return "The sample checkout completed. No customer account was charged.";
-  if (lifecycle === "playing") return "Following the commitment through each checkout step.";
-  return "Uses sample buyers and never charges a customer.";
-}
 
 export function CommerceStage({
   policy = COMMITMENT_POLICIES[0],
@@ -102,7 +89,7 @@ export function CommerceStage({
   }
 
   const isComplete = lifecycle === "completed";
-  const statusTone = lifecycle === "error" ? "error" : lifecycle === "completed" ? "verified" : lifecycle === "idle" ? "neutral" : "demo";
+  const statusTone = proofPanelTone(proof, lifecycle);
 
   return (
     <section className="proof-panel" aria-labelledby="proof-panel-title">
@@ -138,14 +125,14 @@ export function CommerceStage({
           ? `Step ${phase + 1}: ${DEMO_PHASES[phase].title}`
           : lifecycle === "completed"
             ? "Checkout test complete. Exactly one buyer settled and the losing buyer paid zero."
-            : proofLabel(proof, lifecycle)}
+            : proofPanelLabel(proof, lifecycle)}
       </p>
 
       <div className={`proof-notice proof-notice-${statusTone}`}>
         <ShieldCheck size={20} weight="fill" aria-hidden="true" />
         <div>
-          <strong>{proofLabel(proof, lifecycle)}</strong>
-          <p>{proofDescription(proof, lifecycle)}</p>
+          <strong>{proofPanelLabel(proof, lifecycle)}</strong>
+          <p>{proofPanelDescription(proof, lifecycle)}</p>
         </div>
       </div>
 

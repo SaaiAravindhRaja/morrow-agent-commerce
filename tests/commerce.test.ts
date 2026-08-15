@@ -12,6 +12,10 @@ import {
   MAINNET_APPROVE_TX,
   containsLoopback,
   proofModeDisclaimer,
+  proofPanelDescription,
+  proofPanelLabel,
+  proofPanelTone,
+  serializeDemoProof,
   viewerFacingNote,
 } from "@/lib/commerce";
 
@@ -64,6 +68,34 @@ describe("XSGD payment contract", () => {
         "https://merchant.example/api/commit",
       ),
     ).toThrow("A valid merchant EVM address is required");
+  });
+});
+
+describe("proof panel disclosure", () => {
+  const live = serializeDemoProof(buildDemoProof(), "LIVE_FORK", { liveAttempted: true });
+  const demo = serializeDemoProof(buildDemoProof(), "DETERMINISTIC_DEMO", {
+    liveAttempted: true,
+    liveErrorCode: "LIVE_PATH_UNAVAILABLE",
+  });
+
+  it("never renders the same completed sentence for both modes", () => {
+    const liveLabel = proofPanelLabel(live, "completed");
+    const demoLabel = proofPanelLabel(demo, "completed");
+    const liveCopy = proofPanelDescription(live, "completed");
+    const demoCopy = proofPanelDescription(demo, "completed");
+
+    expect(liveLabel).not.toBe(demoLabel);
+    expect(liveCopy).not.toBe(demoCopy);
+    expect(liveLabel).toMatch(/mainnet fork/i);
+    expect(demoLabel).toMatch(/simulat/i);
+    expect(liveCopy).toBe(live.disclaimer);
+    expect(demoCopy).toBe(demo.viewerNote);
+  });
+
+  it("does not mark a simulated run as verified", () => {
+    expect(proofPanelTone(live, "completed")).toBe("verified");
+    expect(proofPanelTone(demo, "completed")).not.toBe("verified");
+    expect(proofPanelTone(demo, "completed")).toBe("demo");
   });
 });
 

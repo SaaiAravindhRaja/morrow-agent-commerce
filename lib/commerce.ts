@@ -84,6 +84,33 @@ export function proofModeDisclaimer(mode: ProofMode): string {
   return "This run used the deterministic simulation. No payment was broadcast. Mainnet contract values are real.";
 }
 
+export type ProofLifecycle = "idle" | "attempting" | "playing" | "completed" | "error";
+export type ProofPanelTone = "error" | "verified" | "neutral" | "demo";
+
+export function proofPanelLabel(proof: DemoProofResponse | null, lifecycle: ProofLifecycle): string {
+  if (lifecycle === "attempting") return "Preparing checkout";
+  if (lifecycle === "error") return "Checkout unavailable";
+  if (!proof) return "Ready to test";
+  return proof.proofMode === "LIVE_FORK" ? "Settled on a mainnet fork" : "Simulated walkthrough";
+}
+
+export function proofPanelDescription(
+  proof: DemoProofResponse | null,
+  lifecycle: ProofLifecycle,
+): string {
+  if (lifecycle === "attempting") return "Preparing authorization, allocation, settlement, and exercise.";
+  if (lifecycle === "error") return "Nothing was charged. Reset and try again.";
+  if (!proof) return "Uses sample buyers and never charges a customer.";
+  return proof.viewerNote ?? proof.disclaimer ?? proofModeDisclaimer(proof.proofMode);
+}
+
+export function proofPanelTone(proof: DemoProofResponse | null, lifecycle: ProofLifecycle): ProofPanelTone {
+  if (lifecycle === "error") return "error";
+  if (proof?.proofMode === "LIVE_FORK") return "verified";
+  if (lifecycle === "idle") return "neutral";
+  return "demo";
+}
+
 export function containsLoopback(value: string): boolean {
   return /127\.0\.0\.1|localhost/i.test(value);
 }
