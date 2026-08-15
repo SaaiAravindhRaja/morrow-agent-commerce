@@ -39,8 +39,20 @@ corepack pnpm test:fork
 If the fork is down, `pnpm test:fork` fails loudly. It does not skip. The normal
 `pnpm test` tier covers deterministic and dead-port behavior without Anvil.
 
-The one real mainnet action (Permit2 approve from MetaMask) is documented in
-[MAINNET-ONCE.md](./MAINNET-ONCE.md). Do not put a private key in this folder.
+The one-time Permit2 approve from MetaMask is documented in
+[MAINNET-ONCE.md](./MAINNET-ONCE.md). That approve is not a settlement.
+
+To send the 0.20 XSGD settlement, Dewa runs the guarded runner locally:
+
+```bash
+corepack pnpm exec tsx rail/settle-mainnet.ts --to=0xYOUR_MERCHANT
+```
+
+No `--yes-real-money` means dry-run: it prints the pre-flight and sends nothing.
+There is no default recipient. Do not put a real private key in this folder.
+
+After the real hash exists, set `MAINNET_SETTLEMENT_TX` so `/architecture` can
+show it. If that env is unset, the site shows nothing.
 
 ## What the rehearsal proves
 
