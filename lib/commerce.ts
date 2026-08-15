@@ -65,8 +65,11 @@ export type DemoContender = {
 export const MAINNET_APPROVE_TX =
   "0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452" as const;
 
+export const MAINNET_SETTLEMENT_TX =
+  "0xd365489a08ff00f17c816e174cb8fd5d79c604a5db95159d1fd53244a047b7d2" as const;
+
 export function readMainnetSettlementTx(): `0x${string}` | undefined {
-  const value = process.env.MAINNET_SETTLEMENT_TX;
+  const value = process.env.MAINNET_SETTLEMENT_TX ?? MAINNET_SETTLEMENT_TX;
   if (!value || !/^0x[a-fA-F0-9]{64}$/.test(value)) return undefined;
   return value as `0x${string}`;
 }

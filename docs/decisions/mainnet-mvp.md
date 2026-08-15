@@ -10,7 +10,7 @@ Updated: 15 August 2026, Singapore time.
 - The scheme Morrow ships is **x402 v2 `exact` + Permit2**, not EIP-3009 and not `upto`. That is a product choice about Morrow, not a statement about what the token supports. Mainnet XSGD does support EIP-3009; see "Verified chain facts" below. The `@x402/evm` hardcoded upto proxy has 0 bytes on Avalanche; the fork rehearsal checks this before running the exact flow.
 - The one-minute demo is one contention story: two agents request the same merchant SKU, one wins inventory, only the winner is settled, and the loser pays S$0 because settle is never called on them.
 - The live path (x402 `exact` + Permit2 against real mainnet bytecode) is proven on a local Anvil mainnet fork (`rail/fork/`). `/api/demo` tries that path first and returns the sample checkout result when the local fork is unavailable. The checkout panel distinguishes a fork settlement from a simulated walkthrough, while the product UI identifies the flow as a test with sample buyers and no customer charge.
-- No verified mainnet settlement hash is recorded in the deployment. The one-time Permit2 `approve` **has** been sent: tx `0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452`, block 92847340, allowance now max uint256. An approve is not a settlement. Do not describe it as one.
+- A 0.20 XSGD mainnet settlement has been sent: tx `0xd365489a08ff00f17c816e174cb8fd5d79c604a5db95159d1fd53244a047b7d2`, block 92866192, via the x402 exact Permit2 proxy. The earlier Permit2 approve is `0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452`. An approve is not a settlement. The hosted checkout still does not broadcast.
 
 ## Verified chain facts
 

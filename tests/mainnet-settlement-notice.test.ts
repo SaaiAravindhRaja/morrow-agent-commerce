@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { mainnetSettlementNotice, readMainnetSettlementTx } from "@/lib/commerce";
+import {
+  MAINNET_SETTLEMENT_TX,
+  mainnetSettlementNotice,
+  readMainnetSettlementTx,
+} from "@/lib/commerce";
 
 const original = process.env.MAINNET_SETTLEMENT_TX;
 
@@ -10,10 +14,12 @@ afterEach(() => {
 });
 
 describe("mainnet settlement notice", () => {
-  it("renders nothing when MAINNET_SETTLEMENT_TX is unset", () => {
+  it("falls back to the recorded mainnet settlement when env is unset", () => {
     delete process.env.MAINNET_SETTLEMENT_TX;
-    expect(readMainnetSettlementTx()).toBeUndefined();
-    expect(mainnetSettlementNotice()).toBeUndefined();
+    expect(readMainnetSettlementTx()).toBe(MAINNET_SETTLEMENT_TX);
+    expect(mainnetSettlementNotice()).toBe(
+      `Settled 0.20 XSGD on Avalanche C-Chain mainnet. Tx ${MAINNET_SETTLEMENT_TX}.`,
+    );
   });
 
   it("renders nothing for a placeholder or short value", () => {
