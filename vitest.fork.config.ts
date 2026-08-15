@@ -1,5 +1,5 @@
-import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   resolve: {
@@ -9,7 +9,8 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["tests/**/*.test.ts"],
-    exclude: ["tests/**/*.fork.test.ts", "node_modules/**", ".next/**"],
+    include: ["tests/**/*.fork.test.ts"],
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
   },
 });

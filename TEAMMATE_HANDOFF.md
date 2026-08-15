@@ -30,6 +30,13 @@ corepack pnpm lint
 corepack pnpm build
 ```
 
+The commands above do not require Anvil. A deployment candidate must also pass:
+
+```bash
+cd rail/fork && ./start.sh && cd ../..
+corepack pnpm test:fork
+```
+
 Live fork rehearsal (Foundry required):
 
 ```bash
@@ -57,13 +64,14 @@ Real and verified in the build:
 - "loser is never charged" by never calling settle on the loser
 - Anvil mainnet fork rehearsal (`rail/fork/`): real XSGD bytecode, Permit2 approve, `exact` proxy deployed and matching the SDK
 
-Now on `grok/submittable`:
+Now in the app:
 
 - `/api/demo` tries the Anvil fork first and falls back to the deterministic simulation
 - the UI labels `LIVE FORK` or `DETERMINISTIC DEMO` in plain words
 - protocol bar says `Permit2`, not EIP-3009
 - fork tests cover verify both, settle winner only, reject replay, reject expired
-- architecture page at `/architecture` (the URL to submit). File copy still at `docs/architecture/morrow-architecture.html`
+- `/` is the URL to submit and run for judges
+- `/architecture` is the supporting technical evidence route. File copy still at `docs/architecture/morrow-architecture.html`
 
 Intentionally simulated or not done:
 

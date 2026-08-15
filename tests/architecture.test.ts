@@ -10,11 +10,14 @@ import {
 } from "@/lib/architecture";
 
 describe("architecture catalog", () => {
-  it("labels live work versus demo versus mapping versus out", () => {
-    const statuses = new Set(ARCHITECTURE_NODES.map((node) => node.status));
-    expect(statuses.has("LIVE")).toBe(true);
-    expect(statuses.has("DEMO")).toBe(true);
-    expect(statuses.has("OUT")).toBe(true);
+  it("separates current evidence from optional production mapping", () => {
+    const evidence = new Set(ARCHITECTURE_NODES.flatMap((node) => node.evidence));
+    expect(evidence).toEqual(
+      new Set(["DEPLOYED", "FORK_PROVEN", "SIMULATED", "NOT_USED"]),
+    );
+    expect(ARCHITECTURE_NODES.every((node) => node.evidence.length > 0)).toBe(true);
+    expect(findArchitectureNode("inventory")?.productionMapping).toMatch(/DynamoDB/);
+    expect(findArchitectureNode("inventory")?.evidence).not.toContain("DEPLOYED");
   });
 
   it("keeps the loser-never-charged claim on the settle split", () => {

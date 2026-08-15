@@ -14,6 +14,10 @@ export const PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3" as c
 export const X402_EXACT_PERMIT2_PROXY = "0x402085c248EeA27D92E8b30b2C58ed07f9E20001" as const;
 
 export type ProofMode = "LIVE_FORK" | "DETERMINISTIC_DEMO";
+export type DemoFailureCode =
+  | "LIVE_PATH_UNAVAILABLE"
+  | "LIVE_PATH_REJECTED"
+  | "INVALID_PROOF_RESPONSE";
 export type AssetTransferMethod = "permit2";
 
 export type PaymentRequired = {
@@ -70,7 +74,7 @@ export type DemoProofResponse = {
   disclaimer: string;
   invariant: string;
   liveAttempted: boolean;
-  liveError?: string;
+  liveErrorCode?: DemoFailureCode;
   contenders: Array<
     Omit<DemoContender, "chargedAtomic"> & {
       chargedAtomic: string;
@@ -81,14 +85,14 @@ export type DemoProofResponse = {
 export function serializeDemoProof(
   contenders: DemoContender[],
   mode: ProofMode,
-  extras?: { liveAttempted?: boolean; liveError?: string },
+  extras?: { liveAttempted?: boolean; liveErrorCode?: DemoFailureCode },
 ): DemoProofResponse {
   return {
     proofMode: mode,
     disclaimer: proofModeDisclaimer(mode),
     invariant: "exactly one settlement; losing authorization discarded before settlement",
     liveAttempted: extras?.liveAttempted ?? false,
-    liveError: extras?.liveError,
+    liveErrorCode: extras?.liveErrorCode,
     contenders: contenders.map((contender) => ({
       ...contender,
       chargedAtomic: contender.chargedAtomic.toString(),

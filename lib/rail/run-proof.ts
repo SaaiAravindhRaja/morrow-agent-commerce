@@ -28,6 +28,15 @@ function shortenAuthorization(signature: string): string {
   return `${signature.slice(0, 6)}…${signature.slice(-4)}`;
 }
 
+function redactRailDiagnostic(error: unknown): { name: string; message: string } {
+  const name = error instanceof Error ? error.name : "UnknownError";
+  const raw = error instanceof Error && error.message ? error.message : String(error);
+  const message = raw
+    .replace(/https?:\/\/\S+/gi, "[rpc-url]")
+    .replace(/0x[a-fA-F0-9]{64}/g, "[sensitive-hex]");
+  return { name, message };
+}
+
 function termsHash(commitmentId: string, transaction: string): string {
   return keccak256(toBytes(`${commitmentId}:${transaction}`));
 }
@@ -96,10 +105,10 @@ export async function runProof(options?: { rpcUrl?: string }): Promise<DemoProof
 
     return serializeDemoProof(contenders, "LIVE_FORK", { liveAttempted: true });
   } catch (error) {
-    const liveError = error instanceof Error && error.message ? error.message : String(error);
+    console.error("[morrow demo] live-fork proof failed", redactRailDiagnostic(error));
     return serializeDemoProof(buildDemoProof(), "DETERMINISTIC_DEMO", {
       liveAttempted: true,
-      liveError,
+      liveErrorCode: "LIVE_PATH_UNAVAILABLE",
     });
   }
 }

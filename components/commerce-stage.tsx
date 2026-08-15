@@ -14,6 +14,8 @@ import {
 } from "@/lib/commerce";
 import { runDemo } from "@/lib/run-demo";
 
+type ProofLifecycle = "idle" | "attempting" | "playing" | "completed" | "error";
+
 const LAST_PHASE = DEMO_PHASES.length - 1;
 const CHAIN_ID = XSGD.network.replace("eip155:", "");
 
@@ -24,64 +26,114 @@ function statusForPhase(phase: number) {
   return "AVAILABLE";
 }
 
-function modeTone(proof: DemoProofResponse | null, fetching: boolean) {
-  if (fetching) return "pending";
+function modeTone(proof: DemoProofResponse | null, lifecycle: ProofLifecycle) {
+  if (lifecycle === "attempting") return "pending";
+  if (lifecycle === "error") return "error";
   if (!proof) return "idle";
   return proof.proofMode === "LIVE_FORK" ? "live" : "demo";
 }
 
-function modeLabel(proof: DemoProofResponse | null, fetching: boolean) {
-  if (fetching) return "CONTACTING LIVE PATH";
-  if (!proof) return "AWAITING PROOF";
-  return proof.proofMode === "LIVE_FORK" ? "LIVE FORK" : "DETERMINISTIC DEMO";
+function modeLabel(proof: DemoProofResponse | null, lifecycle: ProofLifecycle) {
+  if (lifecycle === "attempting") return "CHECKING LOCAL FORK";
+  if (lifecycle === "error") return "PROOF UNAVAILABLE";
+  if (!proof) return "PROOF READY · LIVE-FIRST";
+  return proof.proofMode === "LIVE_FORK" ? "LOCAL FORK · VERIFIED" : "DETERMINISTIC · SIMULATED";
 }
 
-function modeCopy(proof: DemoProofResponse | null, fetching: boolean) {
-  if (fetching) {
-    return "Trying the live path. If RPC or the facilitator fails, the deterministic simulation runs instead.";
+function modeCopy(proof: DemoProofResponse | null, lifecycle: ProofLifecycle) {
+  if (lifecycle === "attempting") {
+    return "Checking the local Avalanche mainnet fork before choosing the proof path.";
+  }
+  if (lifecycle === "error") {
+    return "The proof could not be prepared. No payment was broadcast. Retry when ready.";
   }
   if (!proof) {
-    return "The run tries the live path first. If that fails, it falls back to the deterministic simulation.";
+    return "Live fork first; deterministic fallback if unavailable. Neither path broadcasts to mainnet.";
+  }
+  if (proof.liveErrorCode) {
+    return "Local fork unavailable. Deterministic proof activated; no payment was broadcast.";
   }
   return proof.disclaimer || proofModeDisclaimer(proof.proofMode);
 }
 
+function lifecycleAnnouncement(lifecycle: ProofLifecycle, phase: number, proof: DemoProofResponse | null) {
+  if (lifecycle === "attempting") return "Checking the local fork.";
+  if (lifecycle === "playing") return `Proof step ${phase + 1} of 6: ${DEMO_PHASES[phase].title}.`;
+  if (lifecycle === "completed") {
+    return `Proof complete in ${proof?.proofMode === "LIVE_FORK" ? "local fork" : "deterministic simulation"} mode. Atlas won. Nova was charged zero.`;
+  }
+  if (lifecycle === "error") return "Proof unavailable. Retry or reset.";
+  return "Proof ready.";
+}
+
 export function CommerceStage() {
   const [phase, setPhase] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [lifecycle, setLifecycle] = useState<ProofLifecycle>("idle");
   const [proof, setProof] = useState<DemoProofResponse | null>(null);
   const runIdRef = useRef(0);
+  const requestRef = useRef<AbortController | null>(null);
 
-  const fetching = running && proof === null;
-  const tone = modeTone(proof, fetching);
-  const winner = proof?.contenders.find((contender) => contender.settled) ?? proof?.contenders[0];
-  const loser = proof?.contenders.find((contender) => !contender.settled) ?? proof?.contenders[1];
+  const active = lifecycle === "attempting" || lifecycle === "playing";
+  const tone = modeTone(proof, lifecycle);
+  const winner = proof?.contenders.find((contender) => contender.settled);
+  const loser = proof?.contenders.find((contender) => !contender.settled);
 
   useEffect(() => {
-    if (!running || proof === null || phase >= LAST_PHASE) return;
+    return () => {
+      runIdRef.current += 1;
+      requestRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (lifecycle !== "playing" || phase >= LAST_PHASE) return;
 
     const timer = window.setTimeout(() => {
-      const nextPhase = phase + 1;
-      setPhase(nextPhase);
-      if (nextPhase >= LAST_PHASE) setRunning(false);
-    }, 920);
+      setPhase((current) => {
+        const next = current + 1;
+        if (next >= LAST_PHASE) setLifecycle("completed");
+        return next;
+      });
+    }, 720);
     return () => window.clearTimeout(timer);
-  }, [phase, running, proof]);
+  }, [phase, lifecycle]);
 
   async function runProof() {
+    if (active) return;
+
     const runId = ++runIdRef.current;
+    const controller = new AbortController();
+    requestRef.current = controller;
     setPhase(0);
     setProof(null);
-    setRunning(true);
+    setLifecycle("attempting");
 
-    const nextProof = await runDemo();
-    if (runId !== runIdRef.current) return;
-    setProof(nextProof);
+    try {
+      const nextProof = await runDemo(fetch, { signal: controller.signal });
+      if (runId !== runIdRef.current) return;
+
+      setProof(nextProof);
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reducedMotion) {
+        setPhase(LAST_PHASE);
+        setLifecycle("completed");
+      } else {
+        setPhase(0);
+        setLifecycle("playing");
+      }
+    } catch (error) {
+      if (controller.signal.aborted || runId !== runIdRef.current) return;
+      console.error("Unable to prepare the demo proof", error);
+      setLifecycle("error");
+    } finally {
+      if (requestRef.current === controller) requestRef.current = null;
+    }
   }
 
   function resetProof() {
+    if (active) return;
     runIdRef.current += 1;
-    setRunning(false);
+    setLifecycle("idle");
     setPhase(0);
     setProof(null);
   }
@@ -95,39 +147,52 @@ export function CommerceStage() {
           ? "FORK RECEIPT"
           : "DEMO RECEIPT"
         : "PENDING";
-  const loserCharged =
-    phase >= 3 && loser
-      ? formatAtomic(loser.chargedAtomic)
-      : "—";
+  const loserCharged = phase >= 3 && loser ? formatAtomic(loser.chargedAtomic) : "—";
 
   return (
-    <section className="demo-wrap" aria-labelledby="proof-title">
+    <section className="demo-wrap" aria-labelledby="proof-title" id="proof">
       <div className="demo-head shell">
-        <div>
-          <span className="section-kicker">60-SECOND PROOF</span>
-          <h2 id="proof-title">Two agents. One final slot.</h2>
+        <div className="demo-intro">
+          <span className="section-kicker">THE MERCHANT PROOF</span>
+          <h2 id="proof-title">One final slot. Two autonomous buyers.</h2>
+          <p>Friday dinner for two · SKU #SG-0820 · Atlas versus Nova</p>
+        </div>
+        <div className="demo-decision">
+          <span>MERCHANT GUARANTEE</span>
+          <strong>1 winner · 1 settlement · loser S$0</strong>
         </div>
         <div className="demo-actions">
-          <button className="reset-button" type="button" onClick={resetProof}>Reset</button>
-          <button className="run-button" type="button" onClick={runProof} disabled={running}>
-            <span>{running ? "Proof running" : phase === LAST_PHASE ? "Run again" : "Run the proof"}</span>
-            <i aria-hidden="true">{running ? "···" : "→"}</i>
+          {(lifecycle === "completed" || lifecycle === "error") ? (
+            <button className="reset-button" type="button" onClick={resetProof}>Reset</button>
+          ) : null}
+          <button className="run-button" type="button" onClick={runProof} disabled={active}>
+            <span>
+              {lifecycle === "attempting"
+                ? "Checking fork"
+                : lifecycle === "playing"
+                  ? `Step ${phase + 1} of 6`
+                  : lifecycle === "completed"
+                    ? "Run again"
+                    : lifecycle === "error"
+                      ? "Retry proof"
+                      : "Run proof"}
+            </span>
+            <i aria-hidden="true">{active ? "···" : "→"}</i>
           </button>
         </div>
       </div>
 
-      <div className={`proof-shell shell shell-${tone}`}>
-        <div className={`proof-mode mode-${tone}`} aria-live="polite">
+      <p className="sr-only" aria-live="polite">
+        {lifecycleAnnouncement(lifecycle, phase, proof)}
+      </p>
+
+      <div className={`proof-shell shell shell-${tone}`} data-lifecycle={lifecycle}>
+        <div className={`proof-mode mode-${tone}`}>
           <div>
-            <span className="mode-dot" />
-            {modeLabel(proof, fetching)}
+            <span className="mode-dot" aria-hidden="true" />
+            {modeLabel(proof, lifecycle)}
           </div>
-          <div className="proof-mode-copy">
-            <p>{modeCopy(proof, fetching)}</p>
-            {proof?.liveError ? (
-              <p className="proof-mode-error">Live path failed: {proof.liveError}</p>
-            ) : null}
-          </div>
+          <p>{modeCopy(proof, lifecycle)}</p>
         </div>
 
         <div className="proof-grid">
@@ -143,7 +208,7 @@ export function CommerceStage() {
                 <span className="inventory-type">DEMO WEDGE · DINING</span>
                 <h3>Friday dinner<br />for two.</h3>
               </div>
-              <div className="scarcity">
+              <div className="scarcity" aria-label="One slot left">
                 <strong>01</strong>
                 <span>slot left</span>
               </div>
@@ -153,10 +218,10 @@ export function CommerceStage() {
               <div><span>Price</span><strong>{formatXsgd(COMMITMENT_PRICE_ATOMIC)}</strong></div>
               <div><span>On exercise</span><strong>FULL CREDIT</strong></div>
             </div>
-            <p className="terms-note">Non-refundable if it expires. Credited to the booking when exercised on time.</p>
+            <p className="terms-note">Merchant-set terms. Non-refundable on expiry; fully credited when exercised.</p>
           </article>
 
-          <article className="race-card" aria-live="polite">
+          <article className="race-card">
             <div className="card-meta">
               <span>MERCHANT DECISION ENGINE</span>
               <span>STEP {String(phase + 1).padStart(2, "0")} / 06</span>
@@ -172,7 +237,7 @@ export function CommerceStage() {
                 <div><span>NOVA / BUYER AGENT</span><strong>{contenderStatus(phase, "loser")}</strong></div>
                 <div className="agent-result">{contenderResult(phase, "loser")}</div>
               </div>
-              <div className="decision-line"><span style={{ width: `${(phase / LAST_PHASE) * 100}%` }} /></div>
+              <div className="decision-line" aria-hidden="true"><span style={{ width: `${(phase / LAST_PHASE) * 100}%` }} /></div>
             </div>
             <div className="phase-copy">
               <span>{DEMO_PHASES[phase].title}</span>
@@ -185,16 +250,16 @@ export function CommerceStage() {
               <span>COMMITMENT RECEIPT</span>
               <span>{receiptKind}</span>
             </div>
-            <div className="receipt-seal">M</div>
+            <div className="receipt-seal" aria-hidden="true">M</div>
             <div className="receipt-title">
               <span>MERCHANT PROMISE</span>
               <h3>{phase >= 5 ? "Booking confirmed." : phase >= 4 ? "Slot held for Atlas." : "Awaiting settlement."}</h3>
             </div>
             <dl>
               <div><dt>Receipt</dt><dd>{phase >= 4 ? winner?.receipt?.receiptId ?? "—" : "—"}</dd></div>
-              <div><dt>Network</dt><dd>AVAX {CHAIN_ID}</dd></div>
+              <div><dt>Network target</dt><dd>AVAX {CHAIN_ID}</dd></div>
               <div><dt>Asset</dt><dd>{XSGD.symbol} · {XSGD.decimals} DEC</dd></div>
-              <div><dt>Loser charged</dt><dd className="zero-value">{phase >= 3 ? "S$0.00" : "—"}</dd></div>
+              <div><dt>Nova charged</dt><dd className="zero-value">{phase >= 3 ? "S$0.00" : "—"}</dd></div>
             </dl>
             <div className="receipt-hash">
               <span>TERMS HASH</span>
@@ -212,11 +277,11 @@ export function CommerceStage() {
         </div>
       </div>
 
-      <div className="protocol-bar shell">
-        <div><span>NETWORK</span><strong>{XSGD.network}</strong></div>
-        <div><span>ASSET</span><strong>{XSGD.address.slice(0, 8)}…{XSGD.address.slice(-6)}</strong></div>
-        <div><span>ATOMIC PRICE</span><strong>{COMMITMENT_PRICE_ATOMIC.toLocaleString("en-US")}</strong></div>
-        <div><span>AUTHORIZATION</span><strong>Permit2</strong></div>
+      <div className="protocol-bar shell" aria-label="Sponsor technology roles">
+        <div><span>MACHINE PAYMENT</span><strong>x402 v2 · exact</strong></div>
+        <div><span>SETTLEMENT ASSET</span><strong>XSGD · 200000 atomic</strong></div>
+        <div><span>TARGET NETWORK</span><strong>Avalanche C-Chain</strong></div>
+        <div><span>AUTHORIZATION</span><strong>Permit2 · sign first</strong></div>
         <a href="/.well-known/agent-commerce">AGENT CAPABILITY ↗</a>
       </div>
     </section>

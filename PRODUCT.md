@@ -22,7 +22,7 @@ Generic SaaS cream dashboards. Neon "web3" landing pages. Diagrams that hide the
 
 ## Design Principles
 
-- Accuracy beats beauty. Label DEMO, LIVE, and PRODUCTION MAPPING on the thing itself.
+- Accuracy beats beauty. Label current evidence as DEPLOYED, FORK-PROVEN, SIMULATED, or NOT USED. Show PRODUCTION MAPPING separately.
 - The whole story is visible without a click.
 - One settlement, one winner, zero for the loser. That sentence is the product.
 - System fonts only. The page must render offline.
