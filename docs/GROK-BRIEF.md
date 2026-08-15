@@ -1,5 +1,13 @@
 # Task: finish Morrow and make it submittable
 
+> **Historical brief, kept for the record. Two claims in it are now known false.**
+> This file says twice that "mainnet XSGD has no EIP-3009" (success criterion 3,
+> and the guardrail about not rediscovering verified facts). That is wrong. Both
+> EIP-3009 typehash getters on `0xb2F85b7AB3c2b6f62DF06dE6aE7D09c010a5096E`
+> return the canonical constants. The text below is left unedited because it
+> records what was believed when the work was commissioned. Current ground truth
+> is in `docs/decisions/mainnet-mvp.md`.
+
 Repo: `/Users/dewa/Documents/Claude/projects/straits-x-hackathon/morrow-agent-commerce`
 
 Read `CLAUDE.md` first, then `docs/SESSION-CONTEXT.md`, `docs/CORRECTIONS.md` and

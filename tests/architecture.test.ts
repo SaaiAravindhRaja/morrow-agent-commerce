@@ -34,9 +34,13 @@ describe("architecture catalog", () => {
     expect(ARCHITECTURE_AWS.some((item) => /production mapping/i.test(item.body))).toBe(true);
   });
 
-  it("does not claim public /api/commit returns 402 while production is 503", () => {
+  it("describes the merchant node as the deployed URL actually behaves", () => {
+    // Re-probed 15 Aug: GET /api/commit on Vercel is 402 with a payment-required
+    // header, and POST with a signature is 501. It is no longer 503.
     const merchant = findArchitectureNode("merchant");
-    expect(merchant?.today).toMatch(/503/);
+    expect(merchant?.today).not.toMatch(/503/);
+    expect(merchant?.today).toMatch(/402/);
+    expect(merchant?.today).toMatch(/501/);
     expect(merchant?.protocol).not.toMatch(/returns HTTP 402\.$/);
   });
 

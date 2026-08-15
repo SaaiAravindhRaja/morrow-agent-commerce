@@ -28,7 +28,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     title: "Merchant API on Vercel",
     does: "Publishes policy and the 402. Front-end is this Next.js app.",
     protocol: "GET /api/capabilities. GET /api/commit returns 402 only when MERCHANT_WALLET_ADDRESS is set.",
-    today: "Front-end is on Vercel. Public /api/commit is 503 until that env is set. Locally it returns 402.",
+    today: "Live on Vercel. Public GET /api/commit returns 402 with a payment-required header that decodes to the same JSON body. POST with a signature returns 501, because no funded key runs in a hosted environment.",
     evidence: ["DEPLOYED"],
   },
   {
@@ -69,7 +69,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     title: "Settle Atlas only",
     does: "Only the winning authorization is submitted. 0.20 XSGD moves.",
     protocol: "Facilitator settle to exact proxy, then Permit2, then XSGD on 43114.",
-    today: "Proven on the Anvil mainnet fork. Writes stay local. No mainnet broadcast.",
+    today: "Proven on the Anvil mainnet fork. POST /api/exercise then credits the 0.20 XSGD if called before expiry. Writes stay local. No mainnet broadcast.",
     evidence: ["FORK_PROVEN"],
   },
   {
