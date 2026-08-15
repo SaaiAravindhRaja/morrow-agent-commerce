@@ -219,7 +219,7 @@ export function buildDemoProof(): DemoContender[] {
 export const DEMO_PHASES = [
   { title: "Inventory exposed", detail: "Merchant publishes one machine-readable commitment SKU." },
   { title: "Terms accepted", detail: "Two agents accept the same 0.20 XSGD x402 terms." },
-  { title: "Authorizations verified", detail: "Both signatures pass local validation; neither has settled." },
+  { title: "Authorizations verified", detail: "Both authorizations are validated; neither buyer has settled." },
   { title: "Inventory decided", detail: "The merchant atomically grants the final slot to Atlas." },
   { title: "Winner settled", detail: "Only the winner is submitted for XSGD settlement; the loser pays S$0." },
   { title: "Promise exercised", detail: "Exercised on time. 0.20 XSGD credited to the booking. After ten minutes the merchant keeps the deposit." },

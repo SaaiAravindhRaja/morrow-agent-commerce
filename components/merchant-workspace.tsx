@@ -27,7 +27,6 @@ import {
   Storefront,
   Wallet,
 } from "@phosphor-icons/react";
-import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
 import { CommerceStage } from "@/components/commerce-stage";
@@ -172,7 +171,7 @@ export function MerchantWorkspace() {
     setSelectedId(next.id);
     setDetailTab("overview");
     setView("detail");
-    setNotice(editingId ? "Commitment updated" : "Published for this demo session");
+    setNotice(editingId ? "Commitment updated" : "Commitment published");
   }
 
   function togglePolicy(policy: CommitmentPolicy) {
@@ -207,11 +206,6 @@ export function MerchantWorkspace() {
             );
           })}
         </nav>
-        <div className="sidebar-support">
-          <span>Payment rail</span>
-          <strong><i /> Ready for demo</strong>
-          <small>x402 · XSGD · Avalanche</small>
-        </div>
         <button className="merchant-switcher" type="button">
           <span className="merchant-avatar">AB</span>
           <span><small>Merchant</small><strong>Atlas Bistro</strong></span>
@@ -346,13 +340,12 @@ function OverviewSection({
           </div>
         </section>
         <section className="surface health-panel">
-          <div className="surface-header"><div><h2>Payment readiness</h2><p>Current hosted demo configuration.</p></div></div>
+          <div className="surface-header"><div><h2>Agent checkout</h2><p>How autonomous buyers interact with your offers.</p></div></div>
           <ul className="readiness-list">
-            <li><CheckCircle weight="fill" /><span><strong>Agent discovery</strong><small>Capability endpoint deployed</small></span></li>
-            <li><CheckCircle weight="fill" /><span><strong>x402 terms</strong><small>Exact + Permit2 for XSGD</small></span></li>
-            <li><CheckCircle weight="fill" /><span><strong>Safe proof</strong><small>Deterministic hosted fallback</small></span></li>
+            <li><CheckCircle weight="fill" /><span><strong>Offer discovery</strong><small>Catalog, terms, and availability</small></span></li>
+            <li><CheckCircle weight="fill" /><span><strong>Commitment payment</strong><small>Clear XSGD pricing for every offer</small></span></li>
+            <li><CheckCircle weight="fill" /><span><strong>Inventory protection</strong><small>Only allocated offers are settled</small></span></li>
           </ul>
-          <Link className="inline-link" href="/architecture">Inspect architecture <ArrowSquareOut size={15} /></Link>
         </section>
       </div>
     </>
@@ -391,10 +384,7 @@ function CommitmentList({
         title="Commitments"
         description="Turn scarce inventory into machine-readable offers with clear payment rules."
         actions={
-          <>
-            <Link className="button button-secondary" href="/architecture">Architecture <ArrowSquareOut size={16} /></Link>
-            <button className="button button-primary" type="button" onClick={onCreate}><Plus size={17} weight="bold" />Create commitment</button>
-          </>
+          <button className="button button-primary" type="button" onClick={onCreate}><Plus size={17} weight="bold" />Create commitment</button>
         }
       />
       <section className="metrics-row" aria-label="Commitment summary">
@@ -474,13 +464,13 @@ function CommitmentDetail({
         <div className="page-actions">
           <button className="button button-secondary" type="button" onClick={onToggle}>{policy.status === "ACTIVE" ? <Pause size={16} /> : <Play size={16} />}{policy.status === "ACTIVE" ? "Pause" : "Resume"}</button>
           <button className="button button-secondary" type="button" onClick={onEdit}><PencilSimple size={16} />Edit</button>
-          <button className="button button-primary" type="button" onClick={() => onTab("proof")}><Flask size={17} weight="bold" />Run proof</button>
+          <button className="button button-primary" type="button" onClick={() => onTab("proof")}><Flask size={17} weight="bold" />Test checkout</button>
         </div>
       </header>
 
       <nav className="tabs" aria-label="Commitment detail">
         <button type="button" data-active={tab === "overview"} onClick={() => onTab("overview")}>Overview</button>
-        <button type="button" data-active={tab === "proof"} onClick={() => onTab("proof")}>Proof lifecycle</button>
+        <button type="button" data-active={tab === "proof"} onClick={() => onTab("proof")}>Test checkout</button>
         <button type="button" data-active={tab === "agent"} onClick={() => onTab("agent")}>Agent terms</button>
       </nav>
 
@@ -610,12 +600,12 @@ function PolicyEditor({
             </div>
           </section>
           <section className="readiness-card">
-            <div><ShieldCheck size={20} weight="fill" /><span><strong>Test readiness</strong><small>{errors.length ? `${errors.length} field ${errors.length === 1 ? "needs" : "need"} attention` : "Ready to publish and prove"}</small></span></div>
+            <div><ShieldCheck size={20} weight="fill" /><span><strong>Offer readiness</strong><small>{errors.length ? `${errors.length} field ${errors.length === 1 ? "needs" : "need"} attention` : "Ready to publish"}</small></span></div>
             <ul>
               <li><i data-ready={Boolean(compiled)} /><span>Avalanche C-Chain</span><b>{compiled ? "Ready" : "Pending"}</b></li>
               <li><i data-ready={Boolean(compiled)} /><span>XSGD · 6 decimals</span><b>{compiled ? "Ready" : "Pending"}</b></li>
               <li><i data-ready={Boolean(compiled)} /><span>x402 exact + Permit2</span><b>{compiled ? "Ready" : "Pending"}</b></li>
-              <li><i data-ready={Boolean(compiled)} /><span>Deterministic proof</span><b>{compiled ? "Ready" : "Pending"}</b></li>
+              <li><i data-ready={Boolean(compiled)} /><span>Inventory protection</span><b>{compiled ? "Ready" : "Pending"}</b></li>
             </ul>
           </section>
           {errors.length ? <div className="validation-summary" role="alert"><Info size={18} /><div><strong>Complete the policy</strong><ul>{errors.slice(0, 3).map((error) => <li key={error}>{error}</li>)}</ul></div></div> : null}
@@ -660,11 +650,11 @@ function ActivitySection() {
 function SettingsSection() {
   return (
     <>
-      <PageHeader title="Settings" description="Merchant identity, payment recipient, and proof behavior." />
+      <PageHeader title="Settings" description="Merchant identity, settlement account, and buyer safeguards." />
       <div className="settings-grid">
         <section className="surface settings-card"><div className="settings-heading"><Storefront size={21} /><div><h2>Merchant profile</h2><p>Identity shown to buyer agents.</p></div></div><dl className="key-values"><div><dt>Merchant</dt><dd>Atlas Bistro</dd></div><div><dt>Region</dt><dd>Singapore</dd></div><div><dt>Settlement asset</dt><dd>XSGD</dd></div></dl><button className="button button-secondary" type="button">Edit profile</button></section>
-        <section className="surface settings-card"><div className="settings-heading"><Wallet size={21} /><div><h2>Payment recipient</h2><p>Configured through the deployment environment.</p></div></div><div className="configured-state"><CheckCircle size={20} weight="fill" /><div><strong>Merchant wallet configured</strong><p>Address is intentionally not exposed in the workspace.</p></div></div><a className="button button-secondary" href="/api/capabilities" target="_blank" rel="noreferrer">Inspect capability <ArrowSquareOut size={15} /></a></section>
-        <section className="surface settings-card"><div className="settings-heading"><ShieldCheck size={21} /><div><h2>Hosted proof mode</h2><p>Safe judging behavior for the public deployment.</p></div></div><dl className="key-values"><div><dt>Primary</dt><dd>Local fork when available</dd></div><div><dt>Fallback</dt><dd>Deterministic demo</dd></div><div><dt>Mainnet broadcast</dt><dd>Disabled</dd></div></dl><Link className="button button-secondary" href="/architecture">View architecture</Link></section>
+        <section className="surface settings-card"><div className="settings-heading"><Wallet size={21} /><div><h2>Settlement account</h2><p>Receives commitment payments in XSGD.</p></div></div><div className="configured-state"><CheckCircle size={20} weight="fill" /><div><strong>Settlement account connected</strong><p>The wallet address is hidden from the staff-facing view.</p></div></div></section>
+        <section className="surface settings-card"><div className="settings-heading"><ShieldCheck size={21} /><div><h2>Buyer safeguards</h2><p>Rules applied to every commitment checkout.</p></div></div><dl className="key-values"><div><dt>Allocation</dt><dd>Decided before settlement</dd></div><div><dt>Unsuccessful buyers</dt><dd>Not charged</dd></div><div><dt>Exercise</dt><dd>Commitment value credited</dd></div></dl></section>
       </div>
     </>
   );

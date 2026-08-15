@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   DEMO_PHASES,
   formatXsgd,
-  proofModeDisclaimer,
   type DemoProofResponse,
 } from "@/lib/commerce";
 import { COMMITMENT_POLICIES, type CommitmentPolicy } from "@/lib/policies";
@@ -17,17 +16,19 @@ type ProofLifecycle = "idle" | "attempting" | "playing" | "completed" | "error";
 const LAST_PHASE = DEMO_PHASES.length - 1;
 
 function proofLabel(proof: DemoProofResponse | null, lifecycle: ProofLifecycle) {
-  if (lifecycle === "attempting") return "Checking proof path";
-  if (lifecycle === "error") return "Proof unavailable";
-  if (!proof) return "Ready to run";
-  return proof.proofMode === "LIVE_FORK" ? "Local fork verified" : "Deterministic demo";
+  if (lifecycle === "attempting") return "Preparing checkout";
+  if (lifecycle === "error") return "Checkout unavailable";
+  if (lifecycle === "completed" && proof) return "Test complete";
+  if (lifecycle === "playing") return "Checkout in progress";
+  return "Ready to test";
 }
 
 function proofDescription(proof: DemoProofResponse | null, lifecycle: ProofLifecycle) {
-  if (lifecycle === "attempting") return "Trying the local Avalanche fork before using the hosted fallback.";
-  if (lifecycle === "error") return "No payment was broadcast. Reset and try again.";
-  if (!proof) return "The walkthrough prefers a local mainnet fork and falls back safely when it is unavailable.";
-  return proof.viewerNote ?? proof.disclaimer ?? proofModeDisclaimer(proof.proofMode);
+  if (lifecycle === "attempting") return "Preparing authorization, allocation, settlement, and exercise.";
+  if (lifecycle === "error") return "Nothing was charged. Reset and try again.";
+  if (lifecycle === "completed" && proof) return "The sample checkout completed. No customer account was charged.";
+  if (lifecycle === "playing") return "Following the commitment through each checkout step.";
+  return "Uses sample buyers and never charges a customer.";
 }
 
 export function CommerceStage({
@@ -101,33 +102,33 @@ export function CommerceStage({
   }
 
   const isComplete = lifecycle === "completed";
-  const statusTone = lifecycle === "error" ? "error" : proof?.proofMode === "LIVE_FORK" ? "verified" : lifecycle === "idle" ? "neutral" : "demo";
+  const statusTone = lifecycle === "error" ? "error" : lifecycle === "completed" ? "verified" : lifecycle === "idle" ? "neutral" : "demo";
 
   return (
     <section className="proof-panel" aria-labelledby="proof-panel-title">
       <header className="proof-panel-header">
         <div>
-          <span className="overline">End-to-end merchant proof</span>
+          <span className="overline">Checkout test</span>
           <h3 id="proof-panel-title">One slot, two buyers, one settlement</h3>
-          <p>Run the commitment lifecycle without broadcasting a mainnet payment.</p>
+          <p>Preview how two buyers compete for the last available commitment.</p>
         </div>
         <div className="proof-actions">
           {lifecycle === "completed" || lifecycle === "error" ? (
-            <button className="button button-secondary button-icon" type="button" onClick={resetProof} aria-label="Reset proof">
+            <button className="button button-secondary button-icon" type="button" onClick={resetProof} aria-label="Reset checkout test">
               <ArrowCounterClockwise size={17} aria-hidden="true" />
             </button>
           ) : null}
           <button className="button button-primary" type="button" onClick={runProof} disabled={active}>
             <Flask size={17} weight="bold" aria-hidden="true" />
             {lifecycle === "attempting"
-              ? "Checking path"
+              ? "Preparing"
               : lifecycle === "playing"
-                ? `Running ${phase + 1} of ${DEMO_PHASES.length}`
+                ? `Step ${phase + 1} of ${DEMO_PHASES.length}`
                 : lifecycle === "completed"
                   ? "Run again"
                   : lifecycle === "error"
-                    ? "Retry proof"
-                    : "Run proof"}
+                    ? "Retry test"
+                    : "Run test"}
           </button>
         </div>
       </header>
@@ -136,7 +137,7 @@ export function CommerceStage({
         {lifecycle === "playing"
           ? `Step ${phase + 1}: ${DEMO_PHASES[phase].title}`
           : lifecycle === "completed"
-            ? "Proof complete. Exactly one buyer settled and the losing buyer paid zero."
+            ? "Checkout test complete. Exactly one buyer settled and the losing buyer paid zero."
             : proofLabel(proof, lifecycle)}
       </p>
 
@@ -167,7 +168,7 @@ export function CommerceStage({
           })}
         </ol>
 
-        <aside className="proof-outcome" aria-label="Proof outcome">
+        <aside className="proof-outcome" aria-label="Checkout result">
           <div className="proof-offer">
             <span>Offer under test</span>
             <strong>{policy.item}</strong>
@@ -203,13 +204,6 @@ export function CommerceStage({
         </aside>
       </div>
 
-      <footer className="proof-stack" aria-label="Payment stack">
-        <span><b>x402 v2</b> exact payment</span>
-        <span><b>XSGD</b> six-decimal asset</span>
-        <span><b>Avalanche</b> C-Chain 43114</span>
-        <span><b>Permit2</b> authorization</span>
-        <a href="/.well-known/agent-commerce">Open capability endpoint</a>
-      </footer>
     </section>
   );
 }
