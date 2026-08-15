@@ -65,6 +65,18 @@ export type DemoContender = {
 export const MAINNET_APPROVE_TX =
   "0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452" as const;
 
+export function readMainnetSettlementTx(): `0x${string}` | undefined {
+  const value = process.env.MAINNET_SETTLEMENT_TX;
+  if (!value || !/^0x[a-fA-F0-9]{64}$/.test(value)) return undefined;
+  return value as `0x${string}`;
+}
+
+export function mainnetSettlementNotice(): string | undefined {
+  const hash = readMainnetSettlementTx();
+  if (!hash) return undefined;
+  return `Settled 0.20 XSGD on Avalanche C-Chain mainnet. Tx ${hash}.`;
+}
+
 export function proofModeDisclaimer(mode: ProofMode): string {
   if (mode === "LIVE_FORK") {
     return "This run settled against the local Avalanche mainnet fork. No real mainnet transaction was broadcast.";

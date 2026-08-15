@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ArchitectureStage } from "@/components/architecture-stage";
+import { mainnetSettlementNotice } from "@/lib/commerce";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Morrow architecture",
@@ -10,6 +13,8 @@ export const metadata: Metadata = {
 };
 
 export default function ArchitecturePage() {
+  const settlementNotice = mainnetSettlementNotice();
+
   return (
     <main>
       <nav className="architecture-nav" aria-label="Primary navigation">
@@ -21,6 +26,7 @@ export default function ArchitecturePage() {
           Back to commitments
         </Link>
       </nav>
+      {settlementNotice ? <p className="shell">{settlementNotice}</p> : null}
       <ArchitectureStage />
     </main>
   );
