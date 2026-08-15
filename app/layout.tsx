@@ -3,13 +3,13 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Morrow — Merchant commitments for agents",
-  description: "A Track 3 merchant API for accountable, agent-native commerce.",
+  title: "Morrow — Merchant commitment operations",
+  description: "Publish scarce inventory with machine-readable commitment and payment terms.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0d0c",
-  colorScheme: "dark",
+  themeColor: "#f7f7f5",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -17,16 +17,13 @@ export default function ArchitecturePage() {
 
   return (
     <main>
-      <nav className="nav shell" aria-label="Primary navigation">
-        <Link className="wordmark" href="/" aria-label="Morrow home">
-          MORROW<span className="wordmark-dot">.</span>
+      <nav className="architecture-nav" aria-label="Primary navigation">
+        <Link className="brand" href="/" aria-label="Morrow commitments">
+          MORROW<span>.</span>
         </Link>
-        <div className="nav-proof">
-          <span className="pulse-dot" />
-          Architecture · no AWS running
-        </div>
-        <Link className="nav-link" href="/#proof-title">
-          Back to the proof <span aria-hidden="true">↖</span>
+        <span>Architecture · evidence labels distinguish deployed, fork-proven, and simulated paths</span>
+        <Link href="/">
+          Back to commitments
         </Link>
       </nav>
       {settlementNotice ? <p className="shell">{settlementNotice}</p> : null}

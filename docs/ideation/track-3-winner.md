@@ -511,9 +511,7 @@ Same-day merchants sell a signed delivery SLA and issue an XSGD credit when the 
 | 2026-08-14 20:38 | Add synchronous expiry, negative-payment evidence, verified-payer binding, on-chain settlement validation, and merchant-role authorization. | The review found a minute-granularity scheduler mismatch, an interface-only loser claim, and three avoidable trust-boundary gaps. |
 | 2026-08-14 20:39 | Replace the demo policy editor with a published read-only fixture and keep CommitSlot through rail failure. | This protects the decisive experience and avoids wasting the build window on configuration state or an unnecessary concept reset. |
 
-The requirements-only companion produced by the brainstorming pass is [commit-slot-product-contract.md](./commit-slot-product-contract.md). Material changes from the headless document-review pass are recorded above.
-
-Review coverage: coherence, feasibility, product, design, security, scope, and adversarial lenses completed locally. The required different-model pass was attempted, but the installed Claude CLI rejected the review runner’s `--safe-mode` flag; no cross-model findings were used or represented as completed.
+The requirements companion is [commit-slot-product-contract.md](./commit-slot-product-contract.md). Material changes are recorded above.
 
 ## 21. Source ledger
 

@@ -146,7 +146,15 @@ export function formatXsgd(amountAtomic: bigint): string {
   return `${whole}.${fraction.slice(0, 2)} XSGD`;
 }
 
-export function buildPaymentRequired(payTo: string, resourceUrl: string): PaymentRequired {
+export function buildPaymentRequired(
+  payTo: string,
+  resourceUrl: string,
+  options: {
+    amountAtomic?: bigint;
+    description?: string;
+    maxTimeoutSeconds?: number;
+  } = {},
+): PaymentRequired {
   if (!isEvmAddress(payTo)) {
     throw new Error("A valid merchant EVM address is required");
   }
@@ -156,17 +164,17 @@ export function buildPaymentRequired(payTo: string, resourceUrl: string): Paymen
     error: "Payment required to acquire this merchant commitment",
     resource: {
       url: resourceUrl,
-      description: "10-minute non-refundable commitment, credited on exercise",
+      description: options.description ?? "10-minute non-refundable commitment, credited on exercise",
       mimeType: "application/json",
     },
     accepts: [
       {
         scheme: "exact",
         network: XSGD.network,
-        amount: COMMITMENT_PRICE_ATOMIC.toString(),
+        amount: (options.amountAtomic ?? COMMITMENT_PRICE_ATOMIC).toString(),
         asset: XSGD.address,
         payTo,
-        maxTimeoutSeconds: 60,
+        maxTimeoutSeconds: options.maxTimeoutSeconds ?? 60,
         extra: {
           assetTransferMethod: "permit2",
           name: XSGD.name,

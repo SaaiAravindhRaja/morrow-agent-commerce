@@ -1,13 +1,22 @@
 import { decodePaymentSignatureHeader } from "@x402/core/http";
 
-import { COMMITMENT_PRICE_ATOMIC, buildPaymentRequired, isEvmAddress } from "@/lib/commerce";
-import { COMMITMENT_DURATION_SECONDS, recordSettlement } from "@/lib/commitments";
-import { DEMO_SKU, claimInventory, releaseInventory } from "@/lib/inventory";
+import { buildPaymentRequired, isEvmAddress } from "@/lib/commerce";
+import { recordSettlement } from "@/lib/commitments";
+import { claimInventory, releaseInventory } from "@/lib/inventory";
+import { COMMITMENT_POLICIES, type CommitmentPolicy } from "@/lib/policies";
 import { isLiveRailConfigured } from "@/lib/rail/clients";
 import { settleAuthorization, verifyAuthorization } from "@/lib/rail/settlement";
 
-function resourceUrl(request: Request) {
-  return new URL("/api/commit", request.url).toString();
+function policyForRequest(request: Request): CommitmentPolicy | undefined {
+  const policyId = new URL(request.url).searchParams.get("policy");
+  if (!policyId) return COMMITMENT_POLICIES[0];
+  return COMMITMENT_POLICIES.find((policy) => policy.id === policyId && policy.status === "ACTIVE");
+}
+
+function resourceUrl(request: Request, policy: CommitmentPolicy) {
+  const url = new URL("/api/commit", request.url);
+  url.searchParams.set("policy", policy.id);
+  return url.toString();
 }
 
 function proofModeLabel() {
@@ -22,6 +31,17 @@ function unavailableResponse() {
       proofMode: "deterministic-demo",
     },
     { status: 503 },
+  );
+}
+
+function unknownPolicyResponse() {
+  return Response.json(
+    {
+      code: "COMMITMENT_POLICY_NOT_FOUND",
+      message: "No active commitment policy exists with that id.",
+      policies: "/api/policies",
+    },
+    { status: 404, headers: { "Cache-Control": "no-store" } },
   );
 }
 
@@ -43,8 +63,11 @@ function settlementNotEnabledResponse() {
   );
 }
 
-function paymentTermsResponse(request: Request, merchantWallet: string) {
-  const paymentRequired = buildPaymentRequired(merchantWallet, resourceUrl(request));
+function paymentTermsResponse(request: Request, merchantWallet: string, policy: CommitmentPolicy) {
+  const paymentRequired = buildPaymentRequired(merchantWallet, resourceUrl(request, policy), {
+    amountAtomic: BigInt(policy.feeAtomic),
+    description: `${policy.durationMinutes}-minute commitment for ${policy.item}; credited on exercise`,
+  });
   const body = JSON.stringify(paymentRequired);
   const encoded = Buffer.from(body).toString("base64");
 
@@ -73,9 +96,9 @@ function jsonWithoutSignature(
   });
 }
 
-async function settleIfWinner(request: Request, merchantWallet: string) {
+async function settleIfWinner(request: Request, merchantWallet: string, policy: CommitmentPolicy) {
   const header = request.headers.get("PAYMENT-SIGNATURE");
-  if (!header) return paymentTermsResponse(request, merchantWallet);
+  if (!header) return paymentTermsResponse(request, merchantWallet, policy);
 
   let payload;
   try {
@@ -93,7 +116,11 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
   }
 
   try {
-    const requirements = buildPaymentRequired(merchantWallet, resourceUrl(request)).accepts[0];
+    const amountAtomic = BigInt(policy.feeAtomic);
+    const requirements = buildPaymentRequired(merchantWallet, resourceUrl(request, policy), {
+      amountAtomic,
+      description: `${policy.durationMinutes}-minute commitment for ${policy.item}; credited on exercise`,
+    }).accepts[0];
     const verified = await verifyAuthorization(payload, { requirements });
     if (!verified.isValid) {
       return jsonWithoutSignature(
@@ -108,12 +135,12 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
     }
 
     const payer = verified.payer ?? "";
-    const claim = claimInventory(payer, DEMO_SKU);
+    const claim = claimInventory(payer, policy.sku);
     if (claim === "lost") {
       return jsonWithoutSignature(
         {
           code: "SLOT_UNAVAILABLE",
-          sku: DEMO_SKU,
+          sku: policy.sku,
           message: "Inventory already granted. Authorization was not settled.",
           proofMode: "live-fork",
         },
@@ -126,7 +153,7 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
       return jsonWithoutSignature(
         {
           code: "ALREADY_SETTLED",
-          sku: DEMO_SKU,
+          sku: policy.sku,
           message: "This payer already holds the slot. Replay was not settled again.",
           proofMode: "live-fork",
         },
@@ -137,7 +164,7 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
 
     const settled = await settleAuthorization(payload, { requirements });
     if (!settled.success) {
-      releaseInventory(DEMO_SKU);
+      releaseInventory(policy.sku);
       return jsonWithoutSignature(
         {
           code: "SETTLEMENT_FAILED",
@@ -150,22 +177,23 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
     }
 
     recordSettlement({
-      id: DEMO_SKU,
-      sku: DEMO_SKU,
+      id: policy.sku,
+      sku: policy.sku,
       payer,
-      amountAtomic: COMMITMENT_PRICE_ATOMIC,
+      amountAtomic,
       transaction: settled.transaction,
+      durationSeconds: policy.durationMinutes * 60,
     });
 
     return jsonWithoutSignature(
       {
         code: "COMMITMENT_HELD",
-        sku: DEMO_SKU,
+        sku: policy.sku,
         proofMode: "live-fork",
         transaction: settled.transaction,
         payer: settled.payer,
-        amountAtomic: COMMITMENT_PRICE_ATOMIC.toString(),
-        expiresInSeconds: COMMITMENT_DURATION_SECONDS,
+        amountAtomic: amountAtomic.toString(),
+        expiresInSeconds: policy.durationMinutes * 60,
         exercise: "/api/exercise",
       },
       200,
@@ -187,22 +215,26 @@ export function liveSettlementErrorBody(error: unknown) {
 
 export function GET(request: Request) {
   const merchantWallet = process.env.MERCHANT_WALLET_ADDRESS;
+  const policy = policyForRequest(request);
 
   if (!isEvmAddress(merchantWallet)) return unavailableResponse();
-  return paymentTermsResponse(request, merchantWallet);
+  if (!policy) return unknownPolicyResponse();
+  return paymentTermsResponse(request, merchantWallet, policy);
 }
 
 export async function POST(request: Request) {
   const merchantWallet = process.env.MERCHANT_WALLET_ADDRESS;
+  const policy = policyForRequest(request);
   if (!isEvmAddress(merchantWallet)) return unavailableResponse();
+  if (!policy) return unknownPolicyResponse();
 
   if (!request.headers.get("PAYMENT-SIGNATURE")) {
-    return paymentTermsResponse(request, merchantWallet);
+    return paymentTermsResponse(request, merchantWallet, policy);
   }
 
   if (!isLiveRailConfigured()) {
     return settlementNotEnabledResponse();
   }
 
-  return settleIfWinner(request, merchantWallet);
+  return settleIfWinner(request, merchantWallet, policy);
 }
