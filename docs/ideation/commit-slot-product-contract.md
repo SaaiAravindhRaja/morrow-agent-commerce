@@ -3,11 +3,6 @@ title: Morrow - Implementation Plan
 type: feat
 date: 2026-08-14
 topic: morrow
-artifact_contract: ce-unified-plan/v1
-artifact_readiness: implementation-ready
-product_contract_source: ce-brainstorm
-execution: code
-deepened: 2026-08-14
 ---
 
 # Morrow - Implementation Plan
