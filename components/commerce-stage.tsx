@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   COMMITMENT_PRICE_ATOMIC,
   DEMO_PHASES,
   XSGD,
-  buildDemoProof,
   contenderResult,
   contenderStatus,
   formatXsgd,
+  proofModeDisclaimer,
+  type DemoProofResponse,
 } from "@/lib/commerce";
+import { runDemo } from "@/lib/run-demo";
 
 const LAST_PHASE = DEMO_PHASES.length - 1;
-const DEMO_PROOF = buildDemoProof();
 const CHAIN_ID = XSGD.network.replace("eip155:", "");
 
 function statusForPhase(phase: number) {
@@ -23,14 +24,41 @@ function statusForPhase(phase: number) {
   return "AVAILABLE";
 }
 
+function modeTone(proof: DemoProofResponse | null, fetching: boolean) {
+  if (fetching) return "pending";
+  if (!proof) return "idle";
+  return proof.proofMode === "LIVE_FORK" ? "live" : "demo";
+}
+
+function modeLabel(proof: DemoProofResponse | null, fetching: boolean) {
+  if (fetching) return "CONTACTING LIVE PATH";
+  if (!proof) return "AWAITING PROOF";
+  return proof.proofMode === "LIVE_FORK" ? "LIVE FORK" : "DETERMINISTIC DEMO";
+}
+
+function modeCopy(proof: DemoProofResponse | null, fetching: boolean) {
+  if (fetching) {
+    return "Trying the live path. If RPC or the facilitator fails, the deterministic simulation runs instead.";
+  }
+  if (!proof) {
+    return "The run tries the live path first. If that fails, it falls back to the deterministic simulation.";
+  }
+  return proof.disclaimer || proofModeDisclaimer(proof.proofMode);
+}
+
 export function CommerceStage() {
   const [phase, setPhase] = useState(0);
   const [running, setRunning] = useState(false);
-  const winner = DEMO_PROOF[0];
-  const loser = DEMO_PROOF[1];
+  const [proof, setProof] = useState<DemoProofResponse | null>(null);
+  const runIdRef = useRef(0);
+
+  const fetching = running && proof === null;
+  const tone = modeTone(proof, fetching);
+  const winner = proof?.contenders.find((contender) => contender.settled) ?? proof?.contenders[0];
+  const loser = proof?.contenders.find((contender) => !contender.settled) ?? proof?.contenders[1];
 
   useEffect(() => {
-    if (!running || phase >= LAST_PHASE) return;
+    if (!running || proof === null || phase >= LAST_PHASE) return;
 
     const timer = window.setTimeout(() => {
       const nextPhase = phase + 1;
@@ -38,19 +66,39 @@ export function CommerceStage() {
       if (nextPhase >= LAST_PHASE) setRunning(false);
     }, 920);
     return () => window.clearTimeout(timer);
-  }, [phase, running]);
+  }, [phase, running, proof]);
 
-  function runProof() {
-    if (phase >= LAST_PHASE) setPhase(0);
+  async function runProof() {
+    const runId = ++runIdRef.current;
+    setPhase(0);
+    setProof(null);
     setRunning(true);
+
+    const nextProof = await runDemo();
+    if (runId !== runIdRef.current) return;
+    setProof(nextProof);
   }
 
   function resetProof() {
+    runIdRef.current += 1;
     setRunning(false);
     setPhase(0);
+    setProof(null);
   }
 
   const inventoryStatus = statusForPhase(phase);
+  const receiptKind =
+    phase >= 5
+      ? "EXERCISED"
+      : phase >= 4
+        ? proof?.proofMode === "LIVE_FORK"
+          ? "FORK RECEIPT"
+          : "DEMO RECEIPT"
+        : "PENDING";
+  const loserCharged =
+    phase >= 3 && loser
+      ? formatAtomic(loser.chargedAtomic)
+      : "—";
 
   return (
     <section className="demo-wrap" aria-labelledby="proof-title">
@@ -68,10 +116,18 @@ export function CommerceStage() {
         </div>
       </div>
 
-      <div className="proof-shell shell">
-        <div className="proof-mode">
-          <div><span className="mode-dot" /> DETERMINISTIC DEMO</div>
-          <p>No payment is broadcast in this preview. Mainnet contract values are real.</p>
+      <div className={`proof-shell shell shell-${tone}`}>
+        <div className={`proof-mode mode-${tone}`} aria-live="polite">
+          <div>
+            <span className="mode-dot" />
+            {modeLabel(proof, fetching)}
+          </div>
+          <div className="proof-mode-copy">
+            <p>{modeCopy(proof, fetching)}</p>
+            {proof?.liveError ? (
+              <p className="proof-mode-error">Live path failed: {proof.liveError}</p>
+            ) : null}
+          </div>
         </div>
 
         <div className="proof-grid">
@@ -127,7 +183,7 @@ export function CommerceStage() {
           <article className={`receipt-card ${phase >= 4 ? "receipt-visible" : ""}`}>
             <div className="card-meta">
               <span>COMMITMENT RECEIPT</span>
-              <span>{phase >= 5 ? "EXERCISED" : phase >= 4 ? "DEMO RECEIPT" : "PENDING"}</span>
+              <span>{receiptKind}</span>
             </div>
             <div className="receipt-seal">M</div>
             <div className="receipt-title">
@@ -135,14 +191,14 @@ export function CommerceStage() {
               <h3>{phase >= 5 ? "Booking confirmed." : phase >= 4 ? "Slot held for Atlas." : "Awaiting settlement."}</h3>
             </div>
             <dl>
-              <div><dt>Receipt</dt><dd>{phase >= 4 ? winner.receipt?.receiptId : "—"}</dd></div>
+              <div><dt>Receipt</dt><dd>{phase >= 4 ? winner?.receipt?.receiptId ?? "—" : "—"}</dd></div>
               <div><dt>Network</dt><dd>AVAX {CHAIN_ID}</dd></div>
               <div><dt>Asset</dt><dd>{XSGD.symbol} · {XSGD.decimals} DEC</dd></div>
               <div><dt>Loser charged</dt><dd className="zero-value">{phase >= 3 ? "S$0.00" : "—"}</dd></div>
             </dl>
             <div className="receipt-hash">
               <span>TERMS HASH</span>
-              <code>{phase >= 4 ? winner.receipt?.termsHash : "0x——————"}</code>
+              <code>{phase >= 4 ? winner?.receipt?.termsHash ?? "—" : "0x------"}</code>
             </div>
           </article>
         </div>
@@ -151,7 +207,7 @@ export function CommerceStage() {
           <div className="ledger-label">PROOF LEDGER</div>
           <div className={phase >= 2 ? "ledger-active" : ""}><span>01</span><p>Both authorizations valid</p><strong>{phase >= 2 ? "TRUE" : "—"}</strong></div>
           <div className={phase >= 4 ? "ledger-active" : ""}><span>02</span><p>Settlements executed</p><strong>{phase >= 4 ? "1 / 2" : "—"}</strong></div>
-          <div className={phase >= 3 ? "ledger-active" : ""}><span>03</span><p>Nova balance delta</p><strong>{phase >= 3 ? formatXsgd(loser.chargedAtomic) : "—"}</strong></div>
+          <div className={phase >= 3 ? "ledger-active" : ""}><span>03</span><p>Nova balance delta</p><strong>{loserCharged}</strong></div>
           <div className={phase >= 5 ? "ledger-active" : ""}><span>04</span><p>Inventory outcome</p><strong>{phase >= 5 ? "BOOKED" : "—"}</strong></div>
         </div>
       </div>
@@ -160,9 +216,17 @@ export function CommerceStage() {
         <div><span>NETWORK</span><strong>{XSGD.network}</strong></div>
         <div><span>ASSET</span><strong>{XSGD.address.slice(0, 8)}…{XSGD.address.slice(-6)}</strong></div>
         <div><span>ATOMIC PRICE</span><strong>{COMMITMENT_PRICE_ATOMIC.toLocaleString("en-US")}</strong></div>
-        <div><span>AUTHORIZATION</span><strong>EIP-3009</strong></div>
+        <div><span>AUTHORIZATION</span><strong>Permit2</strong></div>
         <a href="/.well-known/agent-commerce">AGENT CAPABILITY ↗</a>
       </div>
     </section>
   );
+}
+
+function formatAtomic(amountAtomic: string) {
+  try {
+    return formatXsgd(BigInt(amountAtomic));
+  } catch {
+    return amountAtomic;
+  }
 }

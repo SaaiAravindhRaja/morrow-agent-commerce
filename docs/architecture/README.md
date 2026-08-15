@@ -1,0 +1,1 @@
+`morrow-architecture.html` is a self-contained architecture diagram for Morrow: two agents race for one paid commitment, only the winner settles 0.20 XSGD, and the file renders in a browser with no external tools. Open it with `open docs/architecture/morrow-architecture.html`.

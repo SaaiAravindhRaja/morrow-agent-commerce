@@ -9,6 +9,7 @@ import {
   contenderStatus,
   formatXsgd,
   isEvmAddress,
+  proofModeDisclaimer,
 } from "@/lib/commerce";
 
 describe("XSGD payment contract", () => {
@@ -32,11 +33,16 @@ describe("XSGD payment contract", () => {
       asset: XSGD.address,
       payTo: "0x1111111111111111111111111111111111111111",
       extra: {
-        assetTransferMethod: "eip3009",
+        assetTransferMethod: "permit2",
         name: "XSGD",
         version: "2",
       },
     });
+  });
+
+  it("describes the two proof modes in plain words", () => {
+    expect(proofModeDisclaimer("LIVE_FORK")).toContain("local Avalanche mainnet fork");
+    expect(proofModeDisclaimer("DETERMINISTIC_DEMO")).toContain("deterministic simulation");
   });
 
   it("rejects the zero address as a merchant recipient", () => {

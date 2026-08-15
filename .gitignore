@@ -8,3 +8,9 @@ node_modules/
 coverage/
 output/playwright/
 *.tsbuildinfo
+
+# payment rail fork harness
+rail/fork/anvil.log
+rail/fork/anvil.pid
+
+.worktrees/

@@ -1,6 +1,6 @@
 # Morrow
 
-Morrow is a merchant-side commerce primitive for scarce inventory. A merchant exposes a time-boxed, non-refundable commitment that an agent can discover and acquire using x402 payment terms. If exercised on time, the commitment is fully credited to the purchase.
+Morrow is a merchant-side commerce primitive for scarce inventory. A merchant exposes a time-boxed, non-refundable commitment deposit that an agent can discover and acquire using x402 `exact` payment terms, authorized with Permit2. If exercised on time, the commitment is fully credited to the purchase.
 
 Public demo: https://morrow-agent-commerce.vercel.app
 
@@ -13,28 +13,38 @@ The current demo uses a restaurant slot because it makes contention easy to unde
 - a machine-readable merchant capability and commitment endpoint
 - 0.20 XSGD represented as `200000` atomic units
 - XSGD on Avalanche C-Chain mainnet (`eip155:43114`)
-- a deterministic two-agent inventory race with exactly one winner
-- a zero-charge loser and a machine-readable demo receipt
+- x402 v2 `exact` + Permit2 (not EIP-3009, not `upto`)
+- a two-agent inventory race with exactly one winner
+- a zero-charge loser, because their authorization is never settled
+- Anvil mainnet fork rehearsal (`rail/fork/`): real XSGD bytecode, Permit2 approve, `exact` proxy deployed
 
-The preview does not broadcast payments, accept wallet authorizations, claim a funded mainnet transaction, or claim an AWS deployment. Live settlement stays disabled until facilitator compatibility and a funded end-to-end transaction are verified.
+The public Vercel site may still be the deterministic simulation. The demo tries the live fork first and falls back; the UI must label which mode ran. This preview does not broadcast a real mainnet payment. Dewa has not sent the one-time Permit2 approve. Do not claim an AWS deployment or a funded mainnet transaction.
 
 ## Run locally
 
 ```bash
-pnpm install
-pnpm dev
+corepack pnpm install
+corepack pnpm dev
 ```
 
 Quality checks:
 
 ```bash
-pnpm test
-pnpm typecheck
-pnpm lint
-pnpm build
+corepack pnpm test
+corepack pnpm typecheck
+corepack pnpm lint
+corepack pnpm build
 ```
 
-Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address only when you need the API to emit payment terms. `POST /api/commit` still rejects every payment authorization because the settlement adapter is intentionally disabled.
+Live fork rehearsal (Foundry required):
+
+```bash
+cd rail/fork
+./start.sh
+./rehearse.sh
+```
+
+Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/commit` to emit payment terms. Live settle on that route also needs the fork up and `FORK_RPC` or `FACILITATOR_PRIVATE_KEY` set. `/api/demo` tries `http://127.0.0.1:8545` on its own. The deterministic demo stays as the judging-day fallback. Architecture diagram: [docs/architecture/morrow-architecture.html](docs/architecture/morrow-architecture.html).
 
 ## Agent endpoints
 

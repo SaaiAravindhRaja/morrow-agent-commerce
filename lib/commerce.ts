@@ -10,6 +10,12 @@ export const XSGD = {
 
 export const COMMITMENT_PRICE_ATOMIC = 200_000n;
 
+export const PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3" as const;
+export const X402_EXACT_PERMIT2_PROXY = "0x402085c248EeA27D92E8b30b2C58ed07f9E20001" as const;
+
+export type ProofMode = "LIVE_FORK" | "DETERMINISTIC_DEMO";
+export type AssetTransferMethod = "permit2";
+
 export type PaymentRequired = {
   x402Version: 2;
   error: string;
@@ -26,7 +32,7 @@ export type PaymentRequired = {
     payTo: string;
     maxTimeoutSeconds: number;
     extra: {
-      assetTransferMethod: "eip3009";
+      assetTransferMethod: AssetTransferMethod;
       name: "XSGD";
       version: typeof XSGD.eip712DomainVersion;
     };
@@ -48,9 +54,47 @@ export type DemoContender = {
     status: "EXERCISED";
     creditAtomic: string;
     termsHash: string;
-    proofMode: "DETERMINISTIC_DEMO";
+    proofMode: ProofMode;
   };
 };
+
+export function proofModeDisclaimer(mode: ProofMode): string {
+  if (mode === "LIVE_FORK") {
+    return "This run settled against the local Avalanche mainnet fork. No real mainnet transaction was broadcast.";
+  }
+  return "This run used the deterministic simulation. No payment was broadcast. Mainnet contract values are real.";
+}
+
+export type DemoProofResponse = {
+  proofMode: ProofMode;
+  disclaimer: string;
+  invariant: string;
+  liveAttempted: boolean;
+  liveError?: string;
+  contenders: Array<
+    Omit<DemoContender, "chargedAtomic"> & {
+      chargedAtomic: string;
+    }
+  >;
+};
+
+export function serializeDemoProof(
+  contenders: DemoContender[],
+  mode: ProofMode,
+  extras?: { liveAttempted?: boolean; liveError?: string },
+): DemoProofResponse {
+  return {
+    proofMode: mode,
+    disclaimer: proofModeDisclaimer(mode),
+    invariant: "exactly one settlement; losing authorization discarded before settlement",
+    liveAttempted: extras?.liveAttempted ?? false,
+    liveError: extras?.liveError,
+    contenders: contenders.map((contender) => ({
+      ...contender,
+      chargedAtomic: contender.chargedAtomic.toString(),
+    })),
+  };
+}
 
 const ADDRESS_PATTERN = /^0x[a-fA-F0-9]{40}$/;
 
@@ -91,7 +135,7 @@ export function buildPaymentRequired(payTo: string, resourceUrl: string): Paymen
         payTo,
         maxTimeoutSeconds: 60,
         extra: {
-          assetTransferMethod: "eip3009",
+          assetTransferMethod: "permit2",
           name: XSGD.name,
           version: XSGD.eip712DomainVersion,
         },
