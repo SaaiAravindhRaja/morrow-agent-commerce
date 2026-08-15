@@ -8,6 +8,7 @@ import {
   type DemoContender,
   type DemoProofResponse,
 } from "@/lib/commerce";
+import { exerciseCommitment, recordSettlement, resetCommitments } from "@/lib/commitments";
 import { DEMO_SKU, claimInventory, releaseInventory, resetInventory } from "@/lib/inventory";
 import {
   ATLAS,
@@ -91,6 +92,7 @@ export async function runProof(options?: {
 
     await ensureAgentsReady(rpcUrl);
     resetInventory(DEMO_SKU);
+    resetCommitments();
 
     const requirements = defaultRequirements(MERCHANT.address);
     const atlasAuth = await createAuthorization(ATLAS.privateKey, { rpcUrl, requirements });
@@ -136,6 +138,18 @@ export async function runProof(options?: {
       throw new Error(firstResult.error ?? secondResult.error ?? "no contender settled");
     }
 
+    recordSettlement({
+      id: DEMO_SKU,
+      sku: DEMO_SKU,
+      payer: winner.payer,
+      amountAtomic: COMMITMENT_PRICE_ATOMIC,
+      transaction: winResult.transaction,
+    });
+    const exercised = exerciseCommitment(DEMO_SKU);
+    if (!exercised.ok) {
+      throw new Error(exercised.message);
+    }
+
     const contenders: DemoContender[] = [first, second].map((contender) => {
       if (contender.key !== winner.key) {
         return {
@@ -156,12 +170,12 @@ export async function runProof(options?: {
         status: "EXERCISED",
         authorization: shortenAuthorization(signatureOf(contender.auth)),
         receipt: {
-          receiptId: winResult.transaction,
+          receiptId: exercised.booking.bookingId,
           commitmentId: DEMO_SKU,
           amountAtomic: COMMITMENT_PRICE_ATOMIC.toString(),
           network: XSGD.network,
           status: "EXERCISED",
-          creditAtomic: COMMITMENT_PRICE_ATOMIC.toString(),
+          creditAtomic: exercised.booking.creditAtomic,
           termsHash: termsHash(DEMO_SKU, winResult.transaction),
           proofMode: "LIVE_FORK",
         },

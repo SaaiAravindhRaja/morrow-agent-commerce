@@ -99,6 +99,7 @@ describe("deterministic proof", () => {
     expect(contenderStatus(3, "winner")).toBe("INVENTORY WON");
     expect(contenderStatus(3, "loser")).toBe("SLOT UNAVAILABLE");
     expect(contenderStatus(4, "winner")).toBe("SETTLED · 0.20 XSGD");
+    expect(contenderStatus(5, "winner")).toBe("EXERCISED · CREDITED");
     expect(contenderResult(2, "winner")).toBe("WAITING");
     expect(contenderResult(3, "winner")).toBe("WINNER");
     expect(contenderResult(3, "loser")).toBe("S$0");

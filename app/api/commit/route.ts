@@ -1,6 +1,7 @@
 import { decodePaymentSignatureHeader } from "@x402/core/http";
 
 import { COMMITMENT_PRICE_ATOMIC, buildPaymentRequired, isEvmAddress } from "@/lib/commerce";
+import { COMMITMENT_DURATION_SECONDS, recordSettlement } from "@/lib/commitments";
 import { DEMO_SKU, claimInventory, releaseInventory } from "@/lib/inventory";
 import { isLiveRailConfigured } from "@/lib/rail/clients";
 import { settleAuthorization, verifyAuthorization } from "@/lib/rail/settlement";
@@ -148,6 +149,14 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
       );
     }
 
+    recordSettlement({
+      id: DEMO_SKU,
+      sku: DEMO_SKU,
+      payer,
+      amountAtomic: COMMITMENT_PRICE_ATOMIC,
+      transaction: settled.transaction,
+    });
+
     return jsonWithoutSignature(
       {
         code: "COMMITMENT_HELD",
@@ -156,13 +165,24 @@ async function settleIfWinner(request: Request, merchantWallet: string) {
         transaction: settled.transaction,
         payer: settled.payer,
         amountAtomic: COMMITMENT_PRICE_ATOMIC.toString(),
+        expiresInSeconds: COMMITMENT_DURATION_SECONDS,
+        exercise: "/api/exercise",
       },
       200,
       "live-fork",
     );
-  } catch {
-    return settlementNotEnabledResponse();
+  } catch (error) {
+    return jsonWithoutSignature(liveSettlementErrorBody(error), 502, "live-fork");
   }
+}
+
+export function liveSettlementErrorBody(error: unknown) {
+  const message = error instanceof Error && error.message ? error.message : "settlement failed";
+  return {
+    code: "SETTLEMENT_FAILED",
+    message,
+    proofMode: "live-fork",
+  };
 }
 
 export function GET(request: Request) {

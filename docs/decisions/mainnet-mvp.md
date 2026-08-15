@@ -7,10 +7,10 @@ Updated: 15 August 2026, Singapore time.
 - The organizer requirement is Avalanche C-Chain mainnet, so the MVP does not target Fuji.
 - The product is a **non-refundable commitment deposit** credited on timely exercise. Judge-facing copy does not call it an option or derivative.
 - The payment amount is **0.20 XSGD**, represented as `200000` atomic units.
-- The scheme is **x402 v2 `exact` + Permit2**. It is not EIP-3009. It is not `upto`. The `@x402/evm` hardcoded upto proxy has 0 bytes on Avalanche; see parent `docs/CORRECTIONS.md` #7.
+- The scheme Morrow ships is **x402 v2 `exact` + Permit2**, not EIP-3009 and not `upto`. That is a product choice about Morrow, not a statement about what the token supports. Mainnet XSGD does support EIP-3009; see "Verified chain facts" below. The `@x402/evm` hardcoded upto proxy has 0 bytes on Avalanche; see parent `docs/CORRECTIONS.md` #7.
 - The one-minute demo is one contention story: two agents request the same merchant SKU, one wins inventory, only the winner is settled, and the loser pays S$0 because settle is never called on them.
 - The live path (x402 `exact` + Permit2 against real mainnet bytecode) is proven on a local Anvil mainnet fork (`rail/fork/`). `/api/demo` tries that path first and falls back. The UI labels the mode. The public Vercel site may still be the deterministic simulation until this branch is deployed.
-- No real mainnet settlement has been sent. The one-time Permit2 `approve` has not been sent.
+- No real mainnet settlement has been sent. The one-time Permit2 `approve` **has** been sent: tx `0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452`, block 92847340, allowance now max uint256. An approve is not a settlement. Do not describe it as one.
 
 ## Verified chain facts
 
@@ -20,9 +20,19 @@ Read-only calls against Avalanche C-Chain mainnet (`chainId` 43114) on contract 
 - decimals: 6
 - EIP-2612 `PERMIT_TYPEHASH()` is present
 - `DOMAIN_SEPARATOR()` and `version()` revert
-- **EIP-3009 typehash getters revert.** `transferWithAuthorization` / `receiveWithAuthorization` cannot be completed against mainnet XSGD.
+- **EIP-3009 is present.** `TRANSFER_WITH_AUTHORIZATION_TYPEHASH()` returns `0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267` and `RECEIVE_WITH_AUTHORIZATION_TYPEHASH()` returns `0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8`. Both equal the canonical keccak of the EIP-3009 structs. `authorizationState(address,bytes32)` resolves instead of reverting.
 
-An earlier revision of this file listed `authorizationState` and `transferWithAuthorization` selectors on the implementation, then concluded that mainnet XSGD has an EIP-3009-style authorization path. That conclusion is false. Selectors on the implementation are not a working EIP-3009 path when the typehash getters revert. See parent `docs/CORRECTIONS.md` #9.
+Reproduce the EIP-3009 line for yourself:
+
+```bash
+cast call 0xb2F85b7AB3c2b6f62DF06dE6aE7D09c010a5096E \
+  "TRANSFER_WITH_AUTHORIZATION_TYPEHASH()(bytes32)" \
+  --rpc-url https://api.avax.network/ext/bc/C/rpc
+```
+
+An earlier revision of this file said the EIP-3009 typehash getters revert, and a later revision doubled down on it. Both were wrong, and the wrong version stood in this file until 15 August. Re-running the call is what settled it. The getters resolve. Saying "mainnet XSGD has no EIP-3009" is false and must not be said to anyone, least of all a judge. See parent `docs/CORRECTIONS.md` #12 and #14.
+
+What is genuinely missing is the **domain**, not the standard. `DOMAIN_SEPARATOR()` and `version()` revert, so the EIP-712 domain cannot be read off-chain. It was recovered from a live 0xGasless settlement as `{ name: "XSGD", version: "2", chainId: 43114, verifyingContract: 0xb2F8…5096E }` and reproduced on the Anvil fork. Morrow ships Permit2 because Permit2 carries its own domain and needs no recovered constant. That is the honest reason.
 
 Usable authorization path:
 
@@ -31,7 +41,7 @@ Usable authorization path:
 
 ## Claim boundary
 
-The product proves the merchant experience, machine-readable API contract, exact mainnet asset metadata, deterministic inventory race, and a zero-charge loser from never settling the losing authorization. The live path is proven on the Anvil fork. It does **not** claim a real mainnet settlement, a funded Permit2 approve, a card hold, or an AWS deployment. AWS has no credits; the diagram maps Well-Architected principles. Implementation is the fork plus an in-process lock.
+The product proves the merchant experience, machine-readable API contract, exact mainnet asset metadata, deterministic inventory race, and a zero-charge loser from never settling the losing authorization. The live path is proven on the Anvil fork. One real mainnet write exists, the Permit2 approve above, and it is an approve and nothing more. The project does **not** claim a real mainnet settlement, a card hold, or an AWS deployment. AWS has no credits; the diagram maps Well-Architected principles. Implementation is the fork plus an in-process lock.
 
 ## Primary references
 

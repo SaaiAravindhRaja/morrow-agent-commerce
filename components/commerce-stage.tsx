@@ -61,7 +61,7 @@ function lifecycleAnnouncement(lifecycle: ProofLifecycle, phase: number, proof: 
   if (lifecycle === "attempting") return "Checking the local fork.";
   if (lifecycle === "playing") return `Proof step ${phase + 1} of 6: ${DEMO_PHASES[phase].title}.`;
   if (lifecycle === "completed") {
-    return `Proof complete in ${proof?.proofMode === "LIVE_FORK" ? "local fork" : "deterministic simulation"} mode. Atlas won. Nova was charged zero.`;
+    return `Proof complete in ${proof?.proofMode === "LIVE_FORK" ? "local fork" : "deterministic simulation"} mode. Winner exercised. Deposit credited. Loser was never settled.`;
   }
   if (lifecycle === "error") return "Proof unavailable. Retry or reset.";
   return "Proof ready.";
@@ -254,7 +254,7 @@ export function CommerceStage() {
             <div className="receipt-seal" aria-hidden="true">M</div>
             <div className="receipt-title">
               <span>MERCHANT PROMISE</span>
-              <h3>{phase >= 5 ? "Booking confirmed." : phase >= 4 ? "Slot held for Atlas." : "Awaiting settlement."}</h3>
+              <h3>{phase >= 5 ? "Exercised. Deposit credited." : phase >= 4 ? "Slot held. Exercise within ten minutes." : "Awaiting settlement."}</h3>
             </div>
             <dl>
               <div><dt>Receipt</dt><dd>{phase >= 4 ? winner?.receipt?.receiptId ?? "—" : "—"}</dd></div>
@@ -274,7 +274,7 @@ export function CommerceStage() {
           <div className={phase >= 2 ? "ledger-active" : ""}><span>01</span><p>Both authorizations valid</p><strong>{phase >= 2 ? "TRUE" : "—"}</strong></div>
           <div className={phase >= 4 ? "ledger-active" : ""}><span>02</span><p>Settlements executed</p><strong>{phase >= 4 ? "1 / 2" : "—"}</strong></div>
           <div className={phase >= 3 ? "ledger-active" : ""}><span>03</span><p>Nova balance delta</p><strong>{loserCharged}</strong></div>
-          <div className={phase >= 5 ? "ledger-active" : ""}><span>04</span><p>Inventory outcome</p><strong>{phase >= 5 ? "BOOKED" : "—"}</strong></div>
+          <div className={phase >= 5 ? "ledger-active" : ""}><span>04</span><p>Deposit on exercise</p><strong>{phase >= 5 ? "CREDITED" : "—"}</strong></div>
         </div>
       </div>
 

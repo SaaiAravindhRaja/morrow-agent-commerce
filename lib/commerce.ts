@@ -201,8 +201,8 @@ export const DEMO_PHASES = [
   { title: "Terms accepted", detail: "Two agents accept the same 0.20 XSGD x402 terms." },
   { title: "Authorizations verified", detail: "Both signatures pass local validation; neither has settled." },
   { title: "Inventory decided", detail: "The merchant atomically grants the final slot to Atlas." },
-  { title: "Winner settled", detail: "Only Atlas is submitted for XSGD settlement; Nova pays S$0." },
-  { title: "Promise exercised", detail: "The commitment receipt becomes a booking with S$0.20 credit." },
+  { title: "Winner settled", detail: "Only the winner is submitted for XSGD settlement; the loser pays S$0." },
+  { title: "Promise exercised", detail: "Exercised on time. 0.20 XSGD credited to the booking. After ten minutes the merchant keeps the deposit." },
 ] as const;
 
 export type ContenderRole = "winner" | "loser";
@@ -212,6 +212,7 @@ export function contenderStatus(phase: number, role: ContenderRole): string {
   if (phase === 1) return "TERMS ACCEPTED";
   if (phase === 2) return "AUTHORIZATION READY";
   if (role === "loser") return "SLOT UNAVAILABLE";
+  if (phase >= 5) return "EXERCISED · CREDITED";
   return phase >= 4 ? "SETTLED · 0.20 XSGD" : "INVENTORY WON";
 }
 

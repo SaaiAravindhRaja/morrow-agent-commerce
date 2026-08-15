@@ -13,12 +13,14 @@ The current demo uses a restaurant slot because it makes contention easy to unde
 - a machine-readable merchant capability and commitment endpoint
 - 0.20 XSGD represented as `200000` atomic units
 - XSGD on Avalanche C-Chain mainnet (`eip155:43114`)
-- x402 v2 `exact` + Permit2 (not EIP-3009, not `upto`)
+- x402 v2 `exact` authorized with Permit2. Mainnet XSGD also supports EIP-3009; Permit2 is a product choice, not a token limitation. `upto` cannot run on Avalanche with the stock SDK, and [/architecture](/architecture) shows the reproduction
 - a two-agent inventory race with exactly one winner
 - a zero-charge loser, because their authorization is never settled
 - Anvil mainnet fork rehearsal (`rail/fork/`): real XSGD bytecode, Permit2 approve, `exact` proxy deployed
 
-The public Vercel site may still be the deterministic simulation. The demo tries the live fork first and falls back; the UI must label which mode ran. This preview does not broadcast a real mainnet payment. Dewa has not sent the one-time Permit2 approve. Do not claim an AWS deployment or a funded mainnet transaction.
+The public Vercel site runs the deterministic simulation. The demo tries the live fork first and falls back; the UI labels which mode ran. This preview does not broadcast a real mainnet payment.
+
+One real Avalanche mainnet transaction exists: the one-time Permit2 approve, [`0xd29b48e9…dc6452`](https://snowtrace.io/tx/0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452), block 92847340. It grants Permit2 an allowance. **It moves no XSGD and it is not a settlement.** No XSGD has moved on mainnet. Do not claim an AWS deployment or a mainnet settlement.
 
 ## Run locally
 
@@ -59,6 +61,7 @@ Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/comm
 - `/.well-known/agent-commerce`
 - `/api/capabilities`
 - `/api/commit`
+- `/api/exercise`
 - `/api/demo`
 - `/architecture`
 
