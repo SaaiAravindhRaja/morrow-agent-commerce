@@ -1,6 +1,7 @@
 import { COMMITMENT_PRICE_ATOMIC, XSGD, isEvmAddress } from "@/lib/commerce";
+import { isLiveRailConfigured } from "@/lib/rail/clients";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 export function GET() {
   const merchantWallet = process.env.MERCHANT_WALLET_ADDRESS;
@@ -11,7 +12,7 @@ export function GET() {
     description: "Time-boxed, paid commitments on scarce merchant inventory",
     proofMode: "deterministic-demo",
     paymentTermsConfigured: isEvmAddress(merchantWallet),
-    liveSettlementEnabled: false,
+    liveSettlementEnabled: isLiveRailConfigured(),
     endpoints: {
       commitment: "/api/commit",
       demoProof: "/api/demo",
@@ -24,7 +25,7 @@ export function GET() {
       asset: XSGD.address,
       decimals: XSGD.decimals,
       amount: COMMITMENT_PRICE_ATOMIC.toString(),
-      authorization: "EIP-3009",
+      authorization: "Permit2",
       eip712Domain: {
         name: XSGD.name,
         version: XSGD.eip712DomainVersion,

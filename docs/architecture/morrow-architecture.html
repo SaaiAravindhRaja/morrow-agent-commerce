@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Morrow architecture</title>
+  <style>
+    :root {
+      --ink: #0a0d0b;
+      --panel: #121612;
+      --panel-2: #181d18;
+      --paper: #e9eee5;
+      --muted: #8f978d;
+      --acid: #c9ff47;
+      --orange: #ff6b35;
+      --line: rgba(233, 238, 229, 0.14);
+      --line-strong: rgba(233, 238, 229, 0.28);
+      --sans: Arial, Helvetica, sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-width: 1100px;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 28px 28px;
+      background-position: -1px -1px;
+    }
+
+    .page {
+      width: 1360px;
+      margin: 0 auto;
+      padding: 28px 28px 40px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: end;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .wordmark {
+      font-weight: 900;
+      font-size: 22px;
+      letter-spacing: -0.05em;
+    }
+
+    .wordmark i {
+      color: var(--acid);
+      font-style: normal;
+    }
+
+    .kicker {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: 34px;
+      font-weight: 400;
+      line-height: 1.12;
+      margin: 0 0 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .lede {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .meta {
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .meta strong {
+      display: block;
+      color: var(--paper);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .banner {
+      margin: 16px 0 18px;
+      padding: 12px 16px;
+      border: 1px solid var(--acid);
+      background: rgba(201, 255, 71, 0.07);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .banner span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--acid);
+      margin-bottom: 4px;
+    }
+
+    .overview {
+      margin: 0 0 18px;
+      background: var(--panel);
+      border: 1px solid var(--line-strong);
+      padding: 10px 10px 6px;
+    }
+
+    .overview svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .legend {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swatch i {
+      width: 18px;
+      height: 10px;
+      display: inline-block;
+      border: 1px solid var(--paper);
+    }
+
+    .swatch .live { background: var(--acid); border-color: var(--acid); }
+    .swatch .demo { background: var(--orange); border-color: var(--orange); }
+    .swatch .map {
+      background: transparent;
+      border-style: dashed;
+      border-color: var(--paper);
+    }
+    .swatch .out {
+      background: transparent;
+      border-color: var(--orange);
+    }
+
+    .tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      vertical-align: middle;
+    }
+
+    .tag-live { background: var(--acid); color: var(--ink); }
+    .tag-demo { background: var(--orange); color: var(--ink); }
+    .tag-map {
+      border: 1px dashed var(--paper);
+      color: var(--paper);
+    }
+    .tag-out {
+      border: 1px solid var(--orange);
+      color: var(--orange);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 10px 14px;
+    }
+
+    .step-num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--acid);
+      padding-top: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line-strong);
+      padding: 14px 16px 16px;
+    }
+
+    .card h2 {
+      margin: 8px 0 6px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .card p, .card li {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--paper);
+    }
+
+    .muted { color: var(--muted); }
+
+    .row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .row-3 { grid-template-columns: 1fr 1fr 1.3fr; }
+    .row-2 { grid-template-columns: 1fr 1fr; }
+    .row-split { grid-template-columns: 1.2fr 0.8fr; }
+    .row-agents { grid-template-columns: 1fr 1fr 1.4fr; }
+    .row-settle { grid-template-columns: 1.35fr 0.85fr; }
+
+    .box {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      padding: 12px 12px 13px;
+      min-height: 92px;
+    }
+
+    .box.live { border-color: rgba(201, 255, 71, 0.45); }
+    .box.demo { border-color: rgba(255, 107, 53, 0.7); }
+    .box.map { border-style: dashed; border-color: rgba(233, 238, 229, 0.4); }
+    .box.out { border-color: var(--orange); opacity: 0.92; }
+    .box.acid {
+      background: var(--acid);
+      color: var(--ink);
+      border-color: var(--acid);
+    }
+    .box.acid .label,
+    .box.acid code,
+    .box.acid p { color: var(--ink); }
+
+    .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .box h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .box p { font-size: 12px; line-height: 1.4; margin: 0; }
+
+    code, .mono {
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .addr {
+      font-family: var(--mono);
+      font-size: 10px;
+      overflow-wrap: anywhere;
+    }
+
+    .expr {
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: #0a0d0b;
+      border-left: 3px solid var(--acid);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--acid);
+    }
+
+    .arrows {
+      display: flex;
+      justify-content: center;
+      padding: 2px 0;
+    }
+
+    .arrows svg { display: block; }
+
+    .chain {
+      display: grid;
+      grid-template-columns: 1fr 16px 1fr 16px 1fr;
+      gap: 8px;
+      align-items: stretch;
+      margin-top: 10px;
+    }
+
+    .chev {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--acid);
+      font-size: 18px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr 0.9fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    footer {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line-strong);
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 6px 0 0;
+      padding-left: 16px;
+    }
+
+    li { margin: 3px 0; }
+
+    .agent-mark {
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--acid);
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+
+    .zero { color: var(--orange); font-weight: 700; }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      html, body { background: var(--ink); }
+      body { min-width: 0; }
+      .page { width: auto; padding: 10mm; }
+      @page { size: A3 landscape; margin: 8mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="kicker">StraitsX AgentiX Playground / Track 3 / architecture</div>
+        <div class="wordmark">MORROW<i>.</i></div>
+        <h1>Two agents race. One settlement. The loser is never charged.</h1>
+        <p class="lede">
+          Morrow sells AI agents a paid 10-minute commitment on scarce inventory
+          (the demo wedge is a restaurant table). Atlas and Nova both authorize
+          0.20 XSGD. The merchant picks exactly one winner and settles only that
+          authorization. The loser authorization is discarded, so there is
+          nothing to refund.
+        </p>
+      </div>
+      <div class="meta">
+        <strong>x402 v2 / scheme exact / Permit2</strong>
+        Avalanche C-Chain &nbsp; chainId 43114<br>
+        XSGD 6 decimals &nbsp; 200000 atomic<br>
+        Self-contained file. No network requests.
+      </div>
+    </header>
+
+    <div class="banner">
+      <span>AWS Well-Architected, as drawn</span>
+      Demonstrates AWS Well-Architected principles for agentic payments; hackathon
+      implementation uses the local Anvil fork + in-process lock; AWS services are
+      the production mapping.
+    </div>
+
+    <div class="legend">
+      <span class="swatch"><i class="live"></i> Live path (fork or production)</span>
+      <span class="swatch"><i class="demo"></i> Demo, local only</span>
+      <span class="swatch"><i class="map"></i> Production mapping, not built here</span>
+      <span class="swatch"><i class="out"></i> Explicitly not in the live path</span>
+    </div>
+
+    <div class="overview" aria-label="End-to-end architecture overview">
+      <svg viewBox="0 0 1304 392" role="img">
+        <title>Morrow payment and inventory race</title>
+        <desc>
+          Atlas and Nova call capabilities and commit, receive HTTP 402 exact Permit2 terms,
+          both sign off-chain, merchant verifies both with no funds moving, inventory is
+          decided, only the winner is settled through the exact Permit2 proxy to XSGD on
+          Avalanche C-Chain, the loser authorization is discarded.
+        </desc>
+
+        <rect x="8" y="10" width="148" height="54" fill="#181d18" stroke="#c9ff47" stroke-width="1.4"/>
+        <text x="18" y="26" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">BUYER AGENT</text>
+        <text x="18" y="46" fill="#e9eee5" font-size="15" font-family="Arial, Helvetica, sans-serif" font-weight="700">Atlas</text>
+
+        <rect x="8" y="72" width="148" height="54" fill="#181d18" stroke="#c9ff47" stroke-width="1.4"/>
+        <text x="18" y="88" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">BUYER AGENT</text>
+        <text x="18" y="108" fill="#e9eee5" font-size="15" font-family="Arial, Helvetica, sans-serif" font-weight="700">Nova</text>
+
+        <path d="M156 37 H186" stroke="#c9ff47" stroke-width="1.6" fill="none"/>
+        <path d="M156 99 H186" stroke="#c9ff47" stroke-width="1.6" fill="none"/>
+        <path d="M186 37 V99" stroke="#c9ff47" stroke-width="1.6" fill="none"/>
+        <path d="M186 68 H198" stroke="#c9ff47" stroke-width="1.6" fill="none"/>
+        <polygon points="198,64 208,68 198,72" fill="#c9ff47"/>
+
+        <rect x="210" y="28" width="196" height="80" fill="#181d18" stroke="#c9ff47" stroke-width="1.4"/>
+        <text x="220" y="44" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">MERCHANT API</text>
+        <text x="220" y="64" fill="#e9eee5" font-size="13" font-family="Arial, Helvetica, sans-serif" font-weight="700">GET /api/capabilities</text>
+        <text x="220" y="82" fill="#e9eee5" font-size="13" font-family="Arial, Helvetica, sans-serif" font-weight="700">GET /api/commit</text>
+        <text x="220" y="98" fill="#c9ff47" font-size="11" font-family="ui-monospace, Consolas, monospace">HTTP 402</text>
+
+        <path d="M406 68 H428" stroke="#c9ff47" stroke-width="1.6" fill="none"/>
+        <polygon points="428,64 438,68 428,72" fill="#c9ff47"/>
+
+        <rect x="440" y="28" width="188" height="80" fill="#181d18" stroke="#c9ff47" stroke-width="1.4"/>
+        <text x="450" y="44" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">402 TERMS</text>
+        <text x="450" y="64" fill="#e9eee5" font-size="13" font-family="Arial, Helvetica, sans-serif" font-weight="700">scheme exact</text>
+        <text x="450" y="82" fill="#e9eee5" font-size="13" font-family="Arial, Helvetica, sans-serif">Permit2 · 0.20 XSGD</text>
+        <text x="450" y="98" fill="#8f978d" font-size="11" font-family="ui-monospace, Consolas, monospace">200000 · 600s</text>
+
+        <path d="M628 68 H650" stroke="#c9ff47" stroke-width="1.6" fill="none"/>
+        <polygon points="650,64 660,68 650,72" fill="#c9ff47"/>
+
+        <rect x="662" y="28" width="188" height="80" fill="#181d18" stroke="#c9ff47" stroke-width="1.4"/>
+        <text x="672" y="44" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">OFF-CHAIN</text>
+        <text x="672" y="64" fill="#e9eee5" font-size="13" font-family="Arial, Helvetica, sans-serif" font-weight="700">Both sign Permit2</text>
+        <text x="672" y="82" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">Two authorizations.</text>
+        <text x="672" y="98" fill="#8f978d" font-size="11" font-family="Arial, Helvetica, sans-serif">Nothing broadcast.</text>
+
+        <path d="M850 68 H872" stroke="#c9ff47" stroke-width="1.6" fill="none"/>
+        <polygon points="872,64 882,68 872,72" fill="#c9ff47"/>
+
+        <rect x="884" y="28" width="412" height="80" fill="#c9ff47"/>
+        <text x="896" y="44" fill="#0a0d0b" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">FACILITATOR /verify</text>
+        <text x="896" y="66" fill="#0a0d0b" font-size="16" font-family="Arial, Helvetica, sans-serif" font-weight="700">Merchant verifies both. No funds move.</text>
+        <text x="896" y="88" fill="#0a0d0b" font-size="12" font-family="Arial, Helvetica, sans-serif">Balance, allowance, nonce, deadline. Still unused.</text>
+
+        <path d="M650 108 V148" stroke="#c9ff47" stroke-width="1.6" fill="none"/>
+        <polygon points="646,148 650,158 654,148" fill="#c9ff47"/>
+
+        <rect x="8" y="162" width="430" height="132" fill="#181d18" stroke="#ff6b35" stroke-width="1.4"/>
+        <rect x="16" y="170" width="44" height="14" fill="#ff6b35"/>
+        <text x="20" y="180" fill="#0a0d0b" font-size="9" font-family="ui-monospace, Consolas, monospace">DEMO</text>
+        <rect x="66" y="170" width="132" height="14" fill="none" stroke="#e9eee5" stroke-dasharray="3 2"/>
+        <text x="72" y="180" fill="#e9eee5" font-size="9" font-family="ui-monospace, Consolas, monospace">PRODUCTION MAPPING</text>
+        <text x="18" y="204" fill="#e9eee5" font-size="15" font-family="Arial, Helvetica, sans-serif" font-weight="700">Inventory decision. Exactly one winner.</text>
+        <text x="18" y="222" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">Demo: in-process lock. Production: DynamoDB single-item write.</text>
+        <rect x="18" y="232" width="402" height="50" fill="#0a0d0b"/>
+        <rect x="18" y="232" width="4" height="50" fill="#c9ff47"/>
+        <text x="30" y="252" fill="#c9ff47" font-size="11" font-family="ui-monospace, Consolas, monospace">attribute_not_exists(lockedBy)</text>
+        <text x="30" y="268" fill="#c9ff47" font-size="11" font-family="ui-monospace, Consolas, monospace">OR expiresAt &lt; :now</text>
+
+        <path d="M438 190 H470" stroke="#c9ff47" stroke-width="1.6" fill="none"/>
+        <polygon points="470,186 480,190 470,194" fill="#c9ff47"/>
+        <text x="444" y="184" fill="#c9ff47" font-size="9" font-family="ui-monospace, Consolas, monospace">WINNER</text>
+
+        <rect x="482" y="162" width="488" height="132" fill="#181d18" stroke="#c9ff47" stroke-width="1.4"/>
+        <text x="494" y="180" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">SETTLE WINNER ONLY</text>
+        <text x="494" y="200" fill="#e9eee5" font-size="14" font-family="Arial, Helvetica, sans-serif" font-weight="700">facilitator /settle</text>
+        <text x="494" y="218" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">Exact proxy then Permit2 then XSGD on 43114</text>
+        <text x="494" y="240" fill="#c9ff47" font-size="10" font-family="ui-monospace, Consolas, monospace">0x402085c248EeA27D92E8b30b2C58ed07f9E20001</text>
+        <text x="494" y="256" fill="#c9ff47" font-size="10" font-family="ui-monospace, Consolas, monospace">0x000000000022D473030F116dDEE9F6B43aC78BA3</text>
+        <text x="494" y="272" fill="#c9ff47" font-size="10" font-family="ui-monospace, Consolas, monospace">0xb2F85b7AB3c2b6f62DF06dE6aE7D09c010a5096E</text>
+
+        <path d="M223 294 V308 H1145 V294" stroke="#ff6b35" stroke-width="1.4" fill="none"/>
+        <polygon points="1141,294 1145,284 1149,294" fill="#ff6b35"/>
+        <text x="228" y="306" fill="#ff6b35" font-size="9" font-family="ui-monospace, Consolas, monospace">LOSER</text>
+
+        <rect x="994" y="162" width="302" height="132" fill="#181d18" stroke="#ff6b35" stroke-width="1.4"/>
+        <text x="1006" y="180" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">NEVER SETTLED</text>
+        <text x="1006" y="202" fill="#e9eee5" font-size="14" font-family="Arial, Helvetica, sans-serif" font-weight="700">Discard / expire</text>
+        <text x="1006" y="222" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">Authorization unused.</text>
+        <text x="1006" y="240" fill="#ff6b35" font-size="13" font-family="Arial, Helvetica, sans-serif" font-weight="700">Charged 0.00 XSGD</text>
+        <text x="1006" y="260" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">No refund. There was</text>
+        <text x="1006" y="276" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">never a charge.</text>
+
+        <rect x="8" y="326" width="420" height="56" fill="#181d18" stroke="#c9ff47" stroke-width="1.4"/>
+        <text x="18" y="344" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">ONE-TIME, ON-CHAIN</text>
+        <text x="18" y="364" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">XSGD.approve(Permit2, max). Payer pays gas once.</text>
+
+        <rect x="436" y="326" width="428" height="56" fill="#181d18" stroke="#ff6b35" stroke-width="1.4"/>
+        <text x="446" y="344" fill="#8f978d" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">JUDGING FALLBACK</text>
+        <text x="446" y="364" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">Fork or facilitator down: UI says DETERMINISTIC_DEMO</text>
+
+        <rect x="872" y="326" width="424" height="56" fill="#181d18" stroke="#ff6b35" stroke-width="1.4"/>
+        <text x="882" y="344" fill="#ff6b35" font-size="9" font-family="ui-monospace, Consolas, monospace" letter-spacing="1.2">NOT IN THE LIVE PATH</text>
+        <text x="882" y="364" fill="#e9eee5" font-size="12" font-family="Arial, Helvetica, sans-serif">EIP-3009 · card hold · x402 upto</text>
+      </svg>
+    </div>
+
+    <div class="flow">
+      <div class="step-num">01</div>
+      <section class="card">
+        <span class="tag tag-live">Live path</span>
+        <h2>Discover. Agents read the merchant, then hit a 402.</h2>
+        <p class="muted">Buyer agents Atlas and Nova request the same SKU.</p>
+        <div class="row row-agents" style="margin-top:10px">
+          <div class="box live">
+            <div class="label">Buyer agent</div>
+            <h3><span class="agent-mark">A</span>Atlas</h3>
+            <p>Wants the last Friday table. Signs later. Does not hold merchant keys.</p>
+          </div>
+          <div class="box live">
+            <div class="label">Buyer agent</div>
+            <h3><span class="agent-mark">N</span>Nova</h3>
+            <p>Same SKU, same 0.20 XSGD terms, same window. Will lose the race.</p>
+          </div>
+          <div class="box live">
+            <div class="label">Merchant API / Next.js</div>
+            <h3>GET /api/capabilities</h3>
+            <p>
+              Machine-readable policy: 600 seconds, non-refundable, credit on exercise.
+            </p>
+            <p style="margin-top:8px">
+              <strong>GET /api/commit</strong> returns HTTP 402,
+              scheme exact, Permit2.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div class="arrows" style="grid-column:2">
+        <svg width="24" height="22" viewBox="0 0 24 22" aria-hidden="true">
+          <path d="M12 2 v14" stroke="#c9ff47" stroke-width="2" fill="none"/>
+          <path d="M6 12 l6 8 l6 -8" stroke="#c9ff47" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
+
+      <div class="step-num">02</div>
+      <section class="card">
+        <span class="tag tag-live">Live path</span>
+        <h2>Authorize off-chain. Verify both. Funds do not move.</h2>
+        <p class="muted">
+          Both agents sign Permit2 authorizations. The merchant verifies both
+          signatures. This is authorize-now, capture-later. Capture is settle.
+        </p>
+        <div class="row row-3" style="margin-top:10px">
+          <div class="box live">
+            <div class="label">Off-chain</div>
+            <h3>Two Permit2 signatures</h3>
+            <p>
+              Each payload binds token, amount 200000, spender (exact proxy),
+              nonce, deadline, and payTo. No transaction is broadcast.
+            </p>
+          </div>
+          <div class="box live">
+            <div class="label">Facilitator</div>
+            <h3>POST /verify, twice</h3>
+            <p>
+              Recovers the signer, checks balance, Permit2 allowance, unused
+              nonce, deadline, network, and asset. Still no transfer.
+            </p>
+          </div>
+          <div class="box live">
+            <div class="label">Invariant</div>
+            <h3>Zero XSGD has moved</h3>
+            <p>
+              A valid authorization is not a charge. The merchant now holds two
+              unused permits and has not called settle.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div class="arrows" style="grid-column:2">
+        <svg width="24" height="22" viewBox="0 0 24 22" aria-hidden="true">
+          <path d="M12 2 v14" stroke="#c9ff47" stroke-width="2" fill="none"/>
+          <path d="M6 12 l6 8 l6 -8" stroke="#c9ff47" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
+
+      <div class="step-num">03</div>
+      <section class="card">
+        <span class="tag tag-demo">Demo</span>
+        <span class="tag tag-map">Production mapping</span>
+        <h2>Inventory decision. Exactly one winner. Race resolved before settle.</h2>
+        <p class="muted">
+          The race is decided on the inventory record, not on the chain. Only
+          the winner is eligible to settle. The AWS-shaped answer is a single-item
+          conditional write.
+        </p>
+        <div class="row row-split" style="margin-top:10px">
+          <div class="box demo">
+            <div class="label">Hackathon implementation</div>
+            <h3>In-process lock <span class="tag tag-demo">Demo</span></h3>
+            <p>
+              The judging build resolves the slot inside the Node process
+              (one winner, one loser). Same ordering as production: decide
+              inventory, then settle at most one authorization.
+            </p>
+          </div>
+          <div class="box map">
+            <div class="label">What the AWS judge is looking at</div>
+            <h3>DynamoDB single-item write <span class="tag tag-map">Production mapping</span></h3>
+            <p>
+              Item key inventoryId. Acquire if free or expired. Failed condition
+              is a 409. No payment rail is called for the loser.
+            </p>
+          </div>
+        </div>
+        <div class="expr">
+          ConditionExpression:<br>
+          attribute_not_exists(lockedBy) OR expiresAt &lt; :now
+        </div>
+        <p class="muted" style="margin-top:8px;font-size:12px">
+          UpdateExpression:
+          <span class="mono">SET lockedBy = :agentId, expiresAt = :expires, version = if_not_exists(version, :zero) + :one, status = :locked</span>
+        </p>
+      </section>
+
+      <div class="arrows" style="grid-column:2">
+        <svg width="280" height="36" viewBox="0 0 280 36" aria-hidden="true">
+          <path d="M70 4 L70 18 L20 18 L20 22" stroke="#c9ff47" stroke-width="2" fill="none"/>
+          <path d="M14 16 l6 8 l6 -8" stroke="#c9ff47" stroke-width="2" fill="none"/>
+          <path d="M210 4 L210 18 L260 18 L260 22" stroke="#ff6b35" stroke-width="2" fill="none"/>
+          <path d="M254 16 l6 8 l6 -8" stroke="#ff6b35" stroke-width="2" fill="none"/>
+          <text x="28" y="14" fill="#c9ff47" font-size="10" font-family="ui-monospace, Consolas, monospace">WINNER</text>
+          <text x="218" y="14" fill="#ff6b35" font-size="10" font-family="ui-monospace, Consolas, monospace">LOSER</text>
+        </svg>
+      </div>
+
+      <div class="step-num">04</div>
+      <section class="card">
+        <span class="tag tag-live">Live path</span>
+        <h2>Settle the winner only. Discard the loser. No refund, because no charge.</h2>
+        <div class="row row-settle" style="margin-top:10px">
+          <div class="box live">
+            <div class="label">Atlas / winner</div>
+            <h3>facilitator settle</h3>
+            <p>
+              Only the winning authorization is submitted to
+              <span class="mono">POST /settle</span>. The facilitator calls the
+              x402 Exact Permit2 proxy. 0.20 XSGD moves on Avalanche C-Chain.
+            </p>
+            <div class="chain">
+              <div class="box acid" style="min-height:0;padding:10px">
+                <div class="label">Proxy</div>
+                <h3 style="font-size:12px">x402 Exact Permit2</h3>
+                <p class="addr">0x402085c248EeA27D92E8b30b2C58ed07f9E20001</p>
+              </div>
+              <div class="chev" aria-hidden="true">→</div>
+              <div class="box acid" style="min-height:0;padding:10px">
+                <div class="label">Permit2</div>
+                <h3 style="font-size:12px">canonical</h3>
+                <p class="addr">0x000000000022D473030F116dDEE9F6B43aC78BA3</p>
+              </div>
+              <div class="chev" aria-hidden="true">→</div>
+              <div class="box acid" style="min-height:0;padding:10px">
+                <div class="label">XSGD / 43114</div>
+                <h3 style="font-size:12px">0.20 XSGD</h3>
+                <p class="addr">0xb2F85b7AB3c2b6f62DF06dE6aE7D09c010a5096E</p>
+              </div>
+            </div>
+          </div>
+          <div class="box demo">
+            <div class="label">Nova / loser</div>
+            <h3>Authorization discarded</h3>
+            <p>
+              Never sent to settle. It expires unused. Nova's XSGD balance does
+              not change.
+            </p>
+            <p style="margin-top:8px" class="zero">Charged: 0.00 XSGD</p>
+            <p style="margin-top:8px">
+              There is no refund path because there was never a charge. A void
+              or reverse would be a lie.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-num">05</div>
+      <section class="card">
+        <span class="tag tag-live">Once per wallet</span>
+        <h2>One-time Permit2 approve. After that, payments are signatures.</h2>
+        <p>
+          Mainnet XSGD has no EIP-3009. The payer calls
+          <span class="mono">XSGD.approve(Permit2, max)</span> once, on-chain,
+          and pays gas that one time. Every later commitment is an off-chain
+          Permit2 signature. "Agent signs, no gas" is true from the second
+          interaction onward. Rehearsed on the Anvil fork against real XSGD
+          bytecode (56,650 gas).
+        </p>
+      </section>
+
+      <div class="step-num">06</div>
+      <section class="card">
+        <span class="tag tag-demo">Demo</span>
+        <h2>Judging-day fallback. The UI must say which mode ran.</h2>
+        <div class="row row-2" style="margin-top:10px">
+          <div class="box live">
+            <div class="label">Preferred</div>
+            <h3>LIVE_FORK</h3>
+            <p>
+              Demo tries the live path first: local Anvil fork of Avalanche
+              C-Chain at 127.0.0.1:8545, then facilitator verify and settle.
+              Writes stay on the fork. No mainnet broadcast.
+            </p>
+          </div>
+          <div class="box demo">
+            <div class="label">If fork RPC or facilitator is down</div>
+            <h3>DETERMINISTIC_DEMO</h3>
+            <p>
+              A deterministic simulation still runs the race and the
+              winner/loser invariant. The UI labels the mode DETERMINISTIC_DEMO
+              in plain words. A viewer cannot mistake it for a live settlement.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer-grid">
+      <section class="card">
+        <span class="tag tag-map">Production mapping</span>
+        <h2>AWS Well-Architected callouts</h2>
+        <ul>
+          <li>
+            <strong>Race:</strong> DynamoDB conditional write on one item.
+            ConditionExpression is on this page. Failed condition emits
+            <span class="mono">RaceConflicts</span>.
+          </li>
+          <li>
+            <strong>Idempotency:</strong> every mutate carries
+            <span class="mono">Idempotency-Key</span>. Key maps to an outcome
+            table (status, tx hash, timestamp, TTL 24 to 48 h). Duplicate key
+            returns the stored outcome. REL04-BP04.
+          </li>
+          <li>
+            <strong>Compensating action:</strong> never settle the loser.
+            On timeout, skip settle and release the lock only if
+            <span class="mono">lockedBy</span> still matches. Expired locks
+            clear with the same condition.
+          </li>
+          <li>
+            <strong>Observability:</strong>
+            <span class="mono">RaceConflicts</span>,
+            <span class="mono">PaymentVerifyLatency</span>,
+            <span class="mono">PaymentSettleLatency</span>.
+            Structured logs carry inventoryId, agentId, idempotencyKey, outcome.
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <span class="tag tag-out">Not in the live path</span>
+        <h2>Drawn so a judge is not misled</h2>
+        <div class="box out" style="margin-top:10px;min-height:0">
+          <div class="label">EIP-3009</div>
+          <p>
+            Mainnet XSGD typehash getters for transferWithAuthorization revert.
+            Fuji sandbox XSGD is a different token. Live path is Permit2.
+          </p>
+        </div>
+        <div class="box out" style="margin-top:8px;min-height:0">
+          <div class="label">StraitsX card hold</div>
+          <p>
+            Sandbox MCP exposes get_card_sandbox and view_card_sandbox only.
+            It cannot hold. Loser-never-charged cannot be built on that MCP.
+          </p>
+        </div>
+        <div class="box out" style="margin-top:8px;min-height:0">
+          <div class="label">x402 upto</div>
+          <p>
+            @x402/evm@2.22.0 hardcodes
+            <span class="addr">0x4020A4f3b7b90ccA423B9fabCc0CE57C6C240002</span>.
+            That address has zero bytecode on Avalanche. Stock upto cannot settle here.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <span class="tag tag-live">Verified addresses</span>
+        <h2>What this file claims</h2>
+        <ul>
+          <li>HTTP 402 terms are exact + Permit2, not EIP-3009 and not upto.</li>
+          <li>Verify does not move funds. Settle does, and only for the winner.</li>
+          <li>Loser authorization is unused. Charged amount is zero.</li>
+          <li>Hackathon lock is in-process. DynamoDB is the production mapping.</li>
+          <li>Fallback is labeled <span class="mono">DETERMINISTIC_DEMO</span>.</li>
+          <li>Approve is once. Later payments are signatures.</li>
+          <li>Proof path is the Anvil fork, not a live mainnet send.</li>
+        </ul>
+      </section>
+    </div>
+
+    <footer>
+      <span>Morrow / AgentiX 2026</span>
+      <span>Open this file in a browser. Nothing is fetched.</span>
+      <span>Ink #0a0d0b &nbsp; Paper #e9eee5 &nbsp; Acid #c9ff47 &nbsp; Orange #ff6b35</span>
+    </footer>
+  </div>
+</body>
+</html>

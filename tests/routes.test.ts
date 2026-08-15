@@ -59,7 +59,7 @@ describe("x402 commitment route", () => {
     expect(encoded).not.toBeNull();
     expect(JSON.parse(Buffer.from(encoded!, "base64").toString("utf8"))).toEqual(body);
     expect(body.accepts[0].extra).toEqual({
-      assetTransferMethod: "eip3009",
+      assetTransferMethod: "permit2",
       name: "XSGD",
       version: "2",
     });
@@ -69,7 +69,7 @@ describe("x402 commitment route", () => {
     process.env.MERCHANT_WALLET_ADDRESS = MERCHANT_WALLET;
     const signature = "sensitive-payment-authorization";
 
-    const response = postCommitment(
+    const response = await postCommitment(
       new Request("https://morrow.example/api/commit", {
         method: "POST",
         headers: { "PAYMENT-SIGNATURE": signature },

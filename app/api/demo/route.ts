@@ -1,17 +1,7 @@
-import { buildDemoProof } from "@/lib/commerce";
+import { runProof } from "@/lib/rail/run-proof";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
-export function GET() {
-  const contenders = buildDemoProof().map((contender) => ({
-    ...contender,
-    chargedAtomic: contender.chargedAtomic.toString(),
-  }));
-
-  return Response.json({
-    proofMode: "DETERMINISTIC_DEMO",
-    disclaimer: "No on-chain payment was broadcast by this preview.",
-    invariant: "exactly one settlement; losing authorization discarded before settlement",
-    contenders,
-  });
+export async function GET() {
+  return Response.json(await runProof());
 }
