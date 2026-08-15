@@ -44,7 +44,7 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     title: "Both sign Permit2",
     does: "Each agent signs an authorization. Nothing is broadcast.",
     protocol: "Permit2 permitWitnessTransferFrom. Spender is the exact proxy.",
-    today: "Proven on the Anvil fork. No verified mainnet settlement hash is configured on the deployment.",
+    today: "Two-agent signing is proven on the Anvil fork. A separate 0.20 XSGD mainnet settlement was sent through the same Permit2 rail.",
     evidence: ["FORK_PROVEN"],
   },
   {
@@ -69,8 +69,8 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     title: "Settle Atlas only",
     does: "Only the winning authorization is submitted. 0.20 XSGD moves.",
     protocol: "Facilitator settle to exact proxy, then Permit2, then XSGD on 43114.",
-    today: "Proven on the Anvil mainnet fork. POST /api/exercise then credits the 0.20 XSGD if called before expiry. Writes stay local. No mainnet broadcast.",
-    evidence: ["FORK_PROVEN"],
+    today: "Two-agent settle is proven on the Anvil fork. One 0.20 XSGD mainnet settlement was sent with the guarded runner, tx 0xd365489a08ff00f17c816e174cb8fd5d79c604a5db95159d1fd53244a047b7d2. Public Vercel still does not settle.",
+    evidence: ["FORK_PROVEN", "DEPLOYED"],
   },
   {
     id: "loser",

@@ -77,16 +77,16 @@ Now in the app:
 Intentionally simulated or not done:
 
 - customer settlement on the public Vercel site; signed POST requests are rejected without forwarding the authorization
-- verified XSGD mainnet settlement; no settlement hash is configured for this deployment
+- customer settlement on the public Vercel site. A separate 0.20 XSGD mainnet settlement exists, tx `0xd365489a08ff00f17c816e174cb8fd5d79c604a5db95159d1fd53244a047b7d2`
 - cryptographic receipt signature
 - AWS infrastructure (no credits; diagram maps Well-Architected principles; implementation is the fork plus an in-process lock)
 - StraitsX card holds (the card MCP cannot do holds; do not pitch the card as the spine)
 
-The one-time Permit2 approval has been sent on Avalanche mainnet. It moves no XSGD and is not a settlement. Do not claim a live mainnet payment or an AWS deployment.
+The Permit2 approve and a 0.20 XSGD settlement have both been sent on Avalanche mainnet. The hosted checkout still does not settle. Do not claim an AWS deployment. Do not call the approve hash a settlement.
 
 ## Highest-value next steps
 
 1. Rehearse the script until it consistently finishes under one minute.
 2. Keep the public product story on merchant value; use `/architecture` only when a judge asks how the rail works.
 3. Describe the hosted flow as a sample checkout and the Anvil path as fork-proven settlement behavior.
-4. Do not send a mainnet settlement unless the team deliberately approves the exact transaction immediately beforehand.
+4. Point judges at settlement tx `0xd365489a08ff00f17c816e174cb8fd5d79c604a5db95159d1fd53244a047b7d2`, not the approve.

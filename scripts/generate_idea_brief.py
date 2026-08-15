@@ -214,7 +214,7 @@ def build() -> None:
             ),
             section(
                 "Honest boundary",
-                "The hosted app rejects signed payment authorizations and does not broadcast them. No verified mainnet settlement hash is configured, and AWS remains a production mapping rather than a deployment claim.",
+                "The hosted app rejects signed payment authorizations and does not broadcast them. A separate 0.20 XSGD mainnet settlement exists. AWS remains a production mapping rather than a deployment claim.",
                 styles,
             ),
         ]],

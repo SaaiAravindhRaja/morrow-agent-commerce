@@ -1,5 +1,14 @@
 # Morrow
 
+| | |
+|---|---|
+| Pitch video | [Google Drive](https://drive.google.com/file/d/1V4zbx8U207uxpn7otYMPjku4LEFuNFfJ/view?usp=sharing) |
+| Repo | https://github.com/SaaiAravindhRaja/morrow-agent-commerce |
+| App | https://morrow-agent-commerce.vercel.app/ |
+| Architecture | https://morrow-agent-commerce.vercel.app/architecture |
+
+![Morrow merchant commitments](docs/readme-hero.png)
+
 Morrow is a merchant-side commerce primitive for scarce inventory. A merchant exposes a time-boxed, non-refundable commitment deposit that an agent can discover and acquire using x402 `exact` payment terms, authorized with Permit2. If exercised on time, the commitment is fully credited to the purchase.
 
 Public demo: https://morrow-agent-commerce.vercel.app
@@ -20,7 +29,7 @@ The current demo uses a restaurant slot because it makes contention easy to unde
 
 The public Vercel app includes a sample checkout that demonstrates the inventory and receipt lifecycle without charging a customer. Its `/api/commit` route publishes real x402 payment terms, while signed settlement is deliberately disabled in the hosted environment. The Anvil harness proves the settlement path separately against a local fork of Avalanche mainnet, and the checkout panel distinguishes a fork settlement from a simulated walkthrough.
 
-One real Avalanche mainnet transaction exists: the one-time Permit2 approve, [`0xd29b48e9…dc6452`](https://snowtrace.io/tx/0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452), block 92847340. It grants Permit2 an allowance. **It moves no XSGD and it is not a settlement.** No XSGD has moved on mainnet. Do not claim an AWS deployment or a mainnet settlement.
+Two Avalanche mainnet writes exist. The Permit2 approve, [`0xd29b48e9…dc6452`](https://snowtrace.io/tx/0xd29b48e98ccf45d4c5d61ac4d6eb85bd37418292496888395734b1c3a5dc6452), block 92847340, grants an allowance and moves no XSGD. The settlement, [`0xd365489a…47b7d2`](https://snowtrace.io/tx/0xd365489a08ff00f17c816e174cb8fd5d79c604a5db95159d1fd53244a047b7d2), block 92866192, moves 0.20 XSGD through the x402 exact Permit2 proxy to `0x22F2BD6f…fe54A`. The hosted checkout still does not broadcast. Do not claim an AWS deployment.
 
 ## Run locally
 

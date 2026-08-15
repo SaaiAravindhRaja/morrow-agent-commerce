@@ -114,8 +114,8 @@ export function ArchitectureStage() {
           Nova both authorize 0.20 XSGD on x402 exact / Permit2. The merchant
           decides inventory first, then settles only Atlas. Nova&apos;s authorization
           is discarded, so there is nothing to refund. Front-end is on Vercel.
-          Settlement is proven on a local Anvil mainnet fork. AWS is not running.
-          No verified mainnet settlement hash is configured on this deployment.
+          The two-agent race is proven on a local Anvil mainnet fork. A separate
+          0.20 XSGD settlement was sent on Avalanche mainnet. AWS is not running.
         </p>
         <p className="arch-error" aria-live="polite">{downloadStatus}</p>
       </header>
