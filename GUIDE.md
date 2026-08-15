@@ -63,6 +63,7 @@ Real and verified in the build:
 - sample inventory contention, winner/loser states, and receipt schema
 - "loser is never charged" by never calling settle on the loser
 - Anvil mainnet fork rehearsal (`rail/fork/`): real XSGD bytecode, Permit2 approve, `exact` proxy deployed and matching the SDK
+- one 0.20 XSGD mainnet settlement, tx `0xd365489a08ff00f17c816e174cb8fd5d79c604a5db95159d1fd53244a047b7d2`
 
 Now in the app:
 
@@ -76,8 +77,7 @@ Now in the app:
 
 Intentionally simulated or not done:
 
-- customer settlement on the public Vercel site; signed POST requests are rejected without forwarding the authorization
-- customer settlement on the public Vercel site. A separate 0.20 XSGD mainnet settlement exists, tx `0xd365489a08ff00f17c816e174cb8fd5d79c604a5db95159d1fd53244a047b7d2`
+- customer settlement on the public Vercel site. Signed POST is rejected. The 0.20 XSGD mainnet send was a separate local runner, not the hosted checkout.
 - cryptographic receipt signature
 - AWS infrastructure (no credits; diagram maps Well-Architected principles; implementation is the fork plus an in-process lock)
 - StraitsX card holds (the card MCP cannot do holds; do not pitch the card as the spine)
