@@ -1,4 +1,5 @@
 import { COMMITMENT_PRICE_ATOMIC, XSGD, isEvmAddress } from "@/lib/commerce";
+import { COMMITMENT_DURATION_SECONDS } from "@/lib/commitments";
 import { isLiveRailConfigured } from "@/lib/rail/clients";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,7 @@ export function GET() {
     liveSettlementEnabled: isLiveRailConfigured(),
     endpoints: {
       commitment: "/api/commit",
+      exercise: "/api/exercise",
       demoProof: "/api/demo",
     },
     payment: {
@@ -32,7 +34,7 @@ export function GET() {
       },
     },
     policy: {
-      durationSeconds: 600,
+      durationSeconds: COMMITMENT_DURATION_SECONDS,
       refundable: false,
       creditOnExercise: COMMITMENT_PRICE_ATOMIC.toString(),
     },

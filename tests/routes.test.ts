@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { GET as getCapabilities } from "@/app/api/capabilities/route";
-import { GET as getCommitment, POST as postCommitment } from "@/app/api/commit/route";
+import { GET as getCommitment, POST as postCommitment, liveSettlementErrorBody } from "@/app/api/commit/route";
 
 const ORIGINAL_MERCHANT_WALLET = process.env.MERCHANT_WALLET_ADDRESS;
 const MERCHANT_WALLET = "0x1111111111111111111111111111111111111111";
@@ -26,6 +26,11 @@ describe("merchant capability route", () => {
       proofMode: "deterministic-demo",
       paymentTermsConfigured: true,
       liveSettlementEnabled: false,
+      endpoints: {
+        commitment: "/api/commit",
+        exercise: "/api/exercise",
+        demoProof: "/api/demo",
+      },
       payment: {
         network: "eip155:43114",
         amount: "200000",
@@ -82,5 +87,12 @@ describe("x402 commitment route", () => {
     expect(response.headers.get("X-MORROW-PROOF-MODE")).toBe("deterministic-demo");
     expect(serializedBody).toContain("LIVE_SETTLEMENT_ADAPTER_NOT_ENABLED");
     expect(serializedBody).not.toContain(signature);
+  });
+
+  it("does not describe a live settlement crash as a disabled preview", () => {
+    const body = liveSettlementErrorBody(new Error("facilitator timed out"));
+    expect(body.code).toBe("SETTLEMENT_FAILED");
+    expect(body.message).toBe("facilitator timed out");
+    expect(body.message).not.toMatch(/preview/i);
   });
 });
