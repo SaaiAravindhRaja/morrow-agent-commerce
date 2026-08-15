@@ -1,1 +1,9 @@
-`morrow-architecture.html` is a self-contained architecture diagram for Morrow: two agents race for one paid commitment, only the winner settles 0.20 XSGD, and the file renders in a browser with no external tools. Open it with `open docs/architecture/morrow-architecture.html`.
+The submission URL is `/architecture` on the deployed Next app.
+
+That route is the diagram. It renders with no CDN, no webfonts, and no remote images. Download SVG from the page for the same vector.
+
+The older self-contained file is still here:
+
+```bash
+open docs/architecture/morrow-architecture.html
+```

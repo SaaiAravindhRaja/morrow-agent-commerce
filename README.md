@@ -44,7 +44,7 @@ cd rail/fork
 ./rehearse.sh
 ```
 
-Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/commit` to emit payment terms. Live settle on that route also needs the fork up and `FORK_RPC` or `FACILITATOR_PRIVATE_KEY` set. `/api/demo` tries `http://127.0.0.1:8545` on its own. The deterministic demo stays as the judging-day fallback. Architecture diagram: [docs/architecture/morrow-architecture.html](docs/architecture/morrow-architecture.html).
+Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/commit` to emit payment terms. Live settle on that route also needs the fork up and `FORK_RPC` or `FACILITATOR_PRIVATE_KEY` set. `/api/demo` tries `http://127.0.0.1:8545` on its own. The deterministic demo stays as the judging-day fallback. Architecture page (the submission URL): [/architecture](/architecture). Same diagram as a file: [docs/architecture/morrow-architecture.html](docs/architecture/morrow-architecture.html).
 
 ## Agent endpoints
 
@@ -52,5 +52,6 @@ Set `MERCHANT_WALLET_ADDRESS` to a non-zero EVM address when you need `/api/comm
 - `/api/capabilities`
 - `/api/commit`
 - `/api/demo`
+- `/architecture`
 
 The authoritative payment and claim decisions are documented in [docs/decisions/mainnet-mvp.md](docs/decisions/mainnet-mvp.md).

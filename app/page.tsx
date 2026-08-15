@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { CommerceStage } from "@/components/commerce-stage";
 
 export default function Home() {
@@ -11,9 +13,14 @@ export default function Home() {
           <span className="pulse-dot" />
           Track 3 · merchant-side commerce
         </div>
-        <a className="nav-link" href="#contract">
-          Read the contract <span aria-hidden="true">↘</span>
-        </a>
+        <div className="nav-links">
+          <Link className="nav-link" href="/architecture">
+            Architecture
+          </Link>
+          <a className="nav-link" href="#contract">
+            Read the contract <span aria-hidden="true">↘</span>
+          </a>
+        </div>
       </nav>
 
       <section className="hero shell" id="top">

@@ -63,7 +63,7 @@ Now on `grok/submittable`:
 - the UI labels `LIVE FORK` or `DETERMINISTIC DEMO` in plain words
 - protocol bar says `Permit2`, not EIP-3009
 - fork tests cover verify both, settle winner only, reject replay, reject expired
-- architecture diagram at `docs/architecture/morrow-architecture.html`
+- architecture page at `/architecture` (the URL to submit). File copy still at `docs/architecture/morrow-architecture.html`
 
 Intentionally simulated or not done:
 
