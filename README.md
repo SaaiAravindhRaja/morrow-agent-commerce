@@ -13,7 +13,7 @@ Morrow is a merchant-side commerce primitive for scarce inventory. A merchant ex
 
 Public demo: https://morrow-agent-commerce.vercel.app
 
-For the idea, demo script, setup, and claim boundaries, start with [TEAMMATE_HANDOFF.md](TEAMMATE_HANDOFF.md).
+Setup and claim boundaries: [GUIDE.md](GUIDE.md).
 
 The current demo uses a restaurant slot because it makes contention easy to understand. The same contract can represent appointments, tickets, rentals, and limited stock.
 
