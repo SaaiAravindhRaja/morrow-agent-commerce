@@ -4,13 +4,13 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-1" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#111827;" value="Morrow — Agent-Native Commerce Architecture" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-1" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#111827;" value="Morrow: agent-native commerce architecture" vertex="1">
           <mxGeometry height="42" width="950" x="40" y="24" as="geometry" />
         </mxCell>
         <mxCell id="p_yfoKDdkfXDc1M_18pk-2" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#4B5563;" value="Merchant infrastructure for scarce-inventory commitments · x402 · Permit2 · XSGD · Avalanche" vertex="1">
           <mxGeometry height="28" width="850" x="40" y="66" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#E9F5EE;strokeColor=#1F6F4A;strokeWidth=1;fontSize=13;fontColor=#153E2E;align=left;verticalAlign=middle;spacingLeft=14;" value="&lt;b&gt;Core guarantee:&lt;/b&gt; many agents can compete for scarce inventory; one wins atomically; only the winner settles; every loser pays 0 XSGD." vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#E9F5EE;strokeColor=#1F6F4A;strokeWidth=1;fontSize=13;fontColor=#153E2E;align=left;verticalAlign=middle;spacingLeft=14;" value="&lt;b&gt;Core guarantee:&lt;/b&gt; many agents can compete for one slot; only the winner is settled; every loser pays 0 XSGD. Demo lock is in-process. DynamoDB is the production mapping." vertex="1">
           <mxGeometry height="38" width="960" x="40" y="100" as="geometry" />
         </mxCell>
         <mxCell id="p_yfoKDdkfXDc1M_18pk-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fillColor=#FFF6E5;strokeColor=#B7791F;fontSize=10;fontStyle=1;fontColor=#8A5A12;" value="AGENT CUSTOMER" vertex="1">
@@ -40,7 +40,7 @@
         <mxCell id="p_yfoKDdkfXDc1M_18pk-12" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#27527E;" value="PAYMENT AUTHORIZATION / x402" vertex="1">
           <mxGeometry height="20" width="340" x="590" y="196" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-13" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#8A5A12;" value="COMMERCE ORCHESTRATION / AWS" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-13" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#8A5A12;" value="INVENTORY + SETTLE / TODAY" vertex="1">
           <mxGeometry height="20" width="370" x="950" y="196" as="geometry" />
         </mxCell>
         <mxCell id="p_yfoKDdkfXDc1M_18pk-14" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#B42318;" value="AVALANCHE SETTLEMENT" vertex="1">
@@ -61,16 +61,16 @@
         <mxCell id="p_yfoKDdkfXDc1M_18pk-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF2FB;strokeColor=#3B6EA8;strokeWidth=1.5;fontSize=11;fontColor=#111827;align=left;verticalAlign=top;spacing=10;" value="&lt;div&gt;&lt;b&gt;05 · VERIFY&lt;/b&gt;&lt;br&gt;&lt;br&gt;x402 facilitator checks&lt;br&gt;balance · allowance&lt;br&gt;nonce · deadline&lt;/div&gt;" vertex="1">
           <mxGeometry height="145" width="160" x="770" y="220" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#F3E8FF;strokeColor=#7C3AED;strokeWidth=1.5;fontSize=11;fontColor=#111827;align=left;verticalAlign=top;spacing=10;" value="&lt;div&gt;&lt;b&gt;06 · ATOMIC ALLOCATION&lt;/b&gt;&lt;br&gt;&lt;br&gt;DynamoDB conditional write&lt;br&gt;selects exactly one winner&lt;br&gt;and reserves inventory&lt;/div&gt;" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#F3E8FF;strokeColor=#7C3AED;strokeWidth=1.5;fontSize=11;fontColor=#111827;align=left;verticalAlign=top;spacing=10;" value="&lt;div&gt;&lt;b&gt;06 · ALLOCATE THE SLOT&lt;/b&gt;&lt;br&gt;&lt;br&gt;Today: in-process lock&lt;br&gt;first claim wins&lt;br&gt;Mapping: DynamoDB write&lt;/div&gt;" vertex="1">
           <mxGeometry height="145" width="180" x="950" y="220" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#F3E8FF;strokeColor=#7C3AED;strokeWidth=1.5;fontSize=11;fontColor=#111827;align=left;verticalAlign=top;spacing=10;" value="&lt;div&gt;&lt;b&gt;07 · SETTLEMENT WORKER&lt;/b&gt;&lt;br&gt;&lt;br&gt;SQS + Lambda invoke&lt;br&gt;facilitator /settle for the&lt;br&gt;winning authorization only&lt;/div&gt;" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#F3E8FF;strokeColor=#7C3AED;strokeWidth=1.5;fontSize=11;fontColor=#111827;align=left;verticalAlign=top;spacing=10;" value="&lt;div&gt;&lt;b&gt;07 · SETTLE WINNER ONLY&lt;/b&gt;&lt;br&gt;&lt;br&gt;Today: in-process settle&lt;br&gt;fork demo, or one mainnet runner&lt;br&gt;No SQS / Lambda running&lt;/div&gt;" vertex="1">
           <mxGeometry height="145" width="170" x="1150" y="220" as="geometry" />
         </mxCell>
         <mxCell id="p_yfoKDdkfXDc1M_18pk-22" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FDECEC;strokeColor=#E84142;strokeWidth=1.5;fontSize=11;fontColor=#111827;align=left;verticalAlign=top;spacing=10;" value="&lt;div&gt;&lt;b&gt;08 · AVALANCHE C-CHAIN&lt;/b&gt;&lt;br&gt;&lt;br&gt;x402 exact proxy → Permit2&lt;br&gt;→ XSGD token contract&lt;br&gt;→ merchant wallet&lt;/div&gt;" vertex="1">
           <mxGeometry height="145" width="200" x="1340" y="220" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontColor=#334155;align=left;verticalAlign=middle;spacing=12;" value="&lt;div&gt;&lt;b&gt;COMMITMENT STATE MACHINE&lt;/b&gt;&lt;br&gt;&lt;br&gt;REQUESTED → AUTHORIZED → RESERVED → SETTLED → EXERCISED / EXPIRED&lt;br&gt;Every transition is idempotent, policy-bound, and returned as a machine-readable receipt.&lt;/div&gt;" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontColor=#334155;align=left;verticalAlign=middle;spacing=12;" value="&lt;div&gt;&lt;b&gt;COMMITMENT STATE MACHINE&lt;/b&gt;&lt;br&gt;&lt;br&gt;REQUESTED → AUTHORIZED → RESERVED → SETTLED → EXERCISED / EXPIRED&lt;br&gt;Demo: in-memory. Production mapping: idempotent writes and a machine-readable receipt.&lt;/div&gt;" vertex="1">
           <mxGeometry height="105" width="700" x="60" y="420" as="geometry" />
         </mxCell>
         <mxCell id="p_yfoKDdkfXDc1M_18pk-24" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#EAF2FB;strokeColor=#3B6EA8;strokeWidth=1.5;fontSize=11;fontColor=#111827;align=left;verticalAlign=top;spacing=10;" value="&lt;div&gt;&lt;b&gt;LOSER PATH · NOVA&lt;/b&gt;&lt;br&gt;&lt;br&gt;Authorization expires unused&lt;br&gt;&lt;b&gt;Charged 0.00 XSGD&lt;/b&gt;&lt;br&gt;No refund is required&lt;/div&gt;" vertex="1">
@@ -79,7 +79,7 @@
         <mxCell id="p_yfoKDdkfXDc1M_18pk-25" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#E9F5EE;strokeColor=#1F6F4A;strokeWidth=1.5;fontSize=11;fontColor=#111827;align=left;verticalAlign=top;spacing=10;" value="&lt;div&gt;&lt;b&gt;WINNER PATH · ATLAS&lt;/b&gt;&lt;br&gt;&lt;br&gt;Receives a 10-minute commitment&lt;br&gt;Exercise → deposit becomes order credit&lt;br&gt;Expiry → merchant retains deposit&lt;/div&gt;" vertex="1">
           <mxGeometry height="105" width="400" x="1140" y="420" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-26" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontColor=#4B5563;" value="One merchant primitive converts agent intent into a deterministic commercial outcome: atomic inventory ownership, winner-only payment, and an auditable commitment lifecycle." vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-26" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontColor=#4B5563;" value="One merchant primitive: decide inventory first, settle only the winner, loser pays 0. Hosted Vercel publishes 402 terms and does not settle." vertex="1">
           <mxGeometry height="40" width="1480" x="60" y="548" as="geometry" />
         </mxCell>
         <mxCell id="p_yfoKDdkfXDc1M_18pk-27" edge="1" parent="1" source="p_yfoKDdkfXDc1M_18pk-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#1F6F4A;fontSize=10;fontColor=#4B5563;labelBackgroundColor=#FFFFFF;" target="p_yfoKDdkfXDc1M_18pk-16" value="request">
@@ -112,25 +112,25 @@
         <mxCell id="p_yfoKDdkfXDc1M_18pk-36" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fillColor=#FFF7ED;strokeColor=#F59E0B;strokeWidth=1.5;" value="" vertex="1">
           <mxGeometry height="205" width="1520" x="40" y="635" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-37" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=15;fontStyle=1;fontColor=#9A3412;" value="AWS COMMERCE CONTROL PLANE" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-37" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=15;fontStyle=1;fontColor=#9A3412;" value="AWS PRODUCTION MAPPING · NOT RUNNING" vertex="1">
           <mxGeometry height="30" width="500" x="60" y="648" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-38" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontColor=#9A3412;" value="Durable race resolution · exactly-once outcomes · lifecycle automation · auditable settlement" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-38" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontColor=#9A3412;" value="Drawn for Well-Architected. None of this is deployed today." vertex="1">
           <mxGeometry height="30" width="780" x="760" y="648" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-39" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#F59E0B;fontSize=11;fontColor=#374151;align=left;verticalAlign=top;spacing=10;" value="&lt;b&gt;TRANSACTION STATE&lt;/b&gt;&lt;br&gt;&lt;br&gt;DynamoDB commitment + inventory records&lt;br&gt;Conditional writes · TTL · idempotency" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-39" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#F59E0B;fontSize=11;fontColor=#374151;align=left;verticalAlign=top;spacing=10;" value="&lt;b&gt;TRANSACTION STATE&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mapping, not running&lt;br&gt;DynamoDB commitment + inventory&lt;br&gt;Conditional writes · TTL · idempotency" vertex="1">
           <mxGeometry height="120" width="350" x="60" y="690" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#F59E0B;fontSize=11;fontColor=#374151;align=left;verticalAlign=top;spacing=10;" value="&lt;b&gt;ASYNC SETTLEMENT&lt;/b&gt;&lt;br&gt;&lt;br&gt;SQS FIFO → Lambda settlement worker&lt;br&gt;Deduplication · retries · dead-letter queue" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#F59E0B;fontSize=11;fontColor=#374151;align=left;verticalAlign=top;spacing=10;" value="&lt;b&gt;ASYNC SETTLEMENT&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mapping, not running&lt;br&gt;SQS FIFO → Lambda settlement worker&lt;br&gt;Deduplication · retries · dead-letter queue" vertex="1">
           <mxGeometry height="120" width="350" x="430" y="690" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-41" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#F59E0B;fontSize=11;fontColor=#374151;align=left;verticalAlign=top;spacing=10;" value="&lt;b&gt;LIFECYCLE AUTOMATION&lt;/b&gt;&lt;br&gt;&lt;br&gt;EventBridge expiry + reconciliation jobs&lt;br&gt;Exercise credit · inventory release" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-41" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#F59E0B;fontSize=11;fontColor=#374151;align=left;verticalAlign=top;spacing=10;" value="&lt;b&gt;LIFECYCLE AUTOMATION&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mapping, not running&lt;br&gt;EventBridge expiry + reconciliation&lt;br&gt;Exercise credit · inventory release" vertex="1">
           <mxGeometry height="120" width="350" x="800" y="690" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#F59E0B;fontSize=11;fontColor=#374151;align=left;verticalAlign=top;spacing=10;" value="&lt;b&gt;SECURITY + OPERATIONS&lt;/b&gt;&lt;br&gt;&lt;br&gt;KMS + Secrets Manager&lt;br&gt;CloudWatch logs · metrics · alarms" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#F59E0B;fontSize=11;fontColor=#374151;align=left;verticalAlign=top;spacing=10;" value="&lt;b&gt;SECURITY + OPERATIONS&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mapping, not running&lt;br&gt;KMS + Secrets Manager&lt;br&gt;CloudWatch logs · metrics · alarms" vertex="1">
           <mxGeometry height="120" width="370" x="1170" y="690" as="geometry" />
         </mxCell>
-        <mxCell id="p_yfoKDdkfXDc1M_18pk-43" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#6B7280;" value="Agent intent → HTTP 402 terms → Permit2 authorization → atomic inventory allocation → winner-only XSGD settlement on Avalanche C-Chain" vertex="1">
+        <mxCell id="p_yfoKDdkfXDc1M_18pk-43" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontColor=#6B7280;" value="Agent intent → HTTP 402 terms → Permit2 authorization → inventory first (in-process today) → winner-only XSGD settlement on Avalanche C-Chain" vertex="1">
           <mxGeometry height="28" width="1520" x="40" y="852" as="geometry" />
         </mxCell>
       </root>
